@@ -6,11 +6,16 @@
  */
 
 #include <stdio.h>
-#include "include/list.h"
+#include "include/stack.h"
 
 int main(int argc, char **argv) {
-	testme();
-	printf("asdfasdf\n");
+	STACK* stack = init();
+	push_byte(stack, 0xAA);
+	push_2b(stack, 0xAABB);
+	push_4b(stack, 0xAABBCCDD);
+	printf("%X\n", pop_4b(stack));
+	printf("%X\n", pop_2b(stack));
+	printf("%X\n", pop_byte(stack));
     for (int i = 0; i < argc; i++) {
         printf("argv[%d] = %s\n", i, argv[i]);
     }

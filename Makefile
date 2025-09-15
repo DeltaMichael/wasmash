@@ -5,10 +5,10 @@ IDIR=include
 ODIR=obj
 ARTEFACT=index
 
-_DEPS=list.h
+_DEPS=stack.h
 DEPS=$(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ=main.o list.o
+_OBJ=main.o stack.o
 OBJ=$(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: %.c $(DEPS)
