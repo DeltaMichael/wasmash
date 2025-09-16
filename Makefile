@@ -1,14 +1,14 @@
 CC=emcc
-CFLAGS=-sEXPORTED_FUNCTIONS=_main -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,callMain -sMODULARIZE=1 -sEXPORT_NAME=Foo -sENVIRONMENT=web -sASYNCIFY=0 -sINVOKE_RUN=0
+CFLAGS=-std=gnu99 -sEXPORTED_FUNCTIONS=_main -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,callMain -sMODULARIZE=1 -sEXPORT_NAME=Foo -sENVIRONMENT=web -sASYNCIFY=0 -sINVOKE_RUN=0
 
 IDIR=include
 ODIR=obj
 ARTEFACT=index
 
-_DEPS=stack.h
+_DEPS=stack.h instruction.h list.h
 DEPS=$(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ=main.o stack.o
+_OBJ=main.o stack.o instruction.o list.o
 OBJ=$(patsubst %,$(ODIR)/%,$(_OBJ))
 
 $(ODIR)/%.o: %.c $(DEPS)

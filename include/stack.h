@@ -14,7 +14,7 @@ typedef struct {
 
 void testme();
 
-STACK* init();
+STACK* stack_init();
 void push_byte(STACK* stack, uint8_t val);
 void push_2b(STACK* stack, uint16_t val);
 void push_4b(STACK* stack, uint32_t val);

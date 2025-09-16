@@ -6,7 +6,7 @@ void testme() {
 	printf("I am tested\n");
 }
 
-STACK* init() {
+STACK* stack_init() {
 	STACK* out = calloc(1, sizeof(STACK));
 	out->cap = 1024;
 	out->top = -1;
@@ -39,7 +39,10 @@ uint8_t pop_byte(STACK* stack) {
 		// TODO: Handle this gracefully
 		exit(1);
 	}
-	return stack->data[stack->top--];
+	uint8_t out = stack->data[stack->top];
+	stack->data[stack->top] = 0;
+	stack->top--;
+	return out;
 }
 
 uint16_t pop_2b(STACK* stack) {

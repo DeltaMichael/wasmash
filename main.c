@@ -7,17 +7,33 @@
 
 #include <stdio.h>
 #include "include/stack.h"
+#include "include/instruction.h"
+#include "include/list.h"
 
 int main(int argc, char **argv) {
-	STACK* stack = init();
-	push_byte(stack, 0xAA);
-	push_2b(stack, 0xAABB);
-	push_4b(stack, 0xAABBCCDD);
-	printf("%X\n", pop_4b(stack));
-	printf("%X\n", pop_2b(stack));
-	printf("%X\n", pop_byte(stack));
-    for (int i = 0; i < argc; i++) {
-        printf("argv[%d] = %s\n", i, argv[i]);
+	LIST* list = LIST_INIT(uint8_t, 8);
+	for(int i = 0; i < 300; i++) {
+		LIST_APPEND(list, uint8_t, i);
+	}
+	for(int i = 0; i < 300; i++) {
+		printf("%d. List number: %d\n", i, LIST_GET(list, uint8_t, i));
+	}
+	STACK* stack = stack_init();
+	uint8_t data[5] = {1, 2, 3, 4, 5};
+	exec_instruction(stack, instruction_create(PUSH_8, &data[0]));
+	exec_instruction(stack, instruction_create(PUSH_8, &data[1]));
+	exec_instruction(stack, instruction_create(PUSH_8, &data[2]));
+	exec_instruction(stack, instruction_create(PUSH_8, &data[3]));
+	exec_instruction(stack, instruction_create(PUSH_8, &data[4]));
+	exec_instruction(stack, instruction_create(ADD_8, NULL));
+	exec_instruction(stack, instruction_create(ADD_8, NULL));
+	exec_instruction(stack, instruction_create(ADD_8, NULL));
+	exec_instruction(stack, instruction_create(ADD_8, NULL));
+    for (int i = 0; i < stack->top + 21; i++) {
+        printf("%02X ", stack->data[i]);
+		if(i != 0 && i % 8 == 0) {
+			printf("\n");
+		}
     }
     return 0;
 }
