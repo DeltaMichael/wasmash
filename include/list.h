@@ -14,6 +14,7 @@ typedef struct {
 #define LIST_INIT(type, cap) ({ LIST* list = malloc(sizeof(LIST)); list->capacity = cap; list->pointer = -1; list->data = (type*)malloc(cap * sizeof(type)); list; })
 #define LIST_APPEND(list, type, value) \
 	({ \
+	 	type temp = (value); \
 	 	if(list->pointer == list->capacity + 1) { \
  			type* new_data = (type*)realloc(list->data, sizeof(type) * list->capacity * 2);\
  			if(new_data != NULL) { \
@@ -25,7 +26,7 @@ typedef struct {
  			} \
 		} \
 		type* data = (type*)list->data;\
-		data[list->pointer + 1] = (value); \
+		data[list->pointer + 1] = temp; \
 		list->pointer++; \
 	})
 
