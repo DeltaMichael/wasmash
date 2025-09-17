@@ -28,7 +28,7 @@
           }
         }).then(Module => {
           document.getElementById("runBtn").onclick = () => {
-            Module.callMain(["once oupon a midnight dreary as I wondered weak and weary"]);
+            Module.callMain(["-i", "push8 0;\npush8 1;\npush8 2;\npush8 3;\npush8 4;\npush8 5;\nadd8;\nadd8;\nadd8;\nadd8;\nadd8;\n"]);
           };
         });
       });

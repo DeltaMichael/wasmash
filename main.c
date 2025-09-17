@@ -1,16 +1,11 @@
-/*
- * Copyright 2011 The Emscripten Authors.  All rights reserved.
- * Emscripten is available under two separate licenses, the MIT license and the
- * University of Illinois/NCSA Open Source License.  Both these licenses can be
- * found in the LICENSE file.
- */
-
 #include <stdio.h>
+#include <string.h>
 #include "include/stack.h"
 #include "include/instruction.h"
 #include "include/list.h"
+#include "include/asm_lexer.h"
 
-int main(int argc, char **argv) {
+LIST* sum_one_to_five() {
 	LIST* list = LIST_INIT(INSTRUCTION*, 256);
 	uint8_t data[5] = {1, 2, 3, 4, 5};
 	for(uint8_t i = 0; i < 5; i++) {
@@ -19,9 +14,22 @@ int main(int argc, char **argv) {
 	for(uint8_t i = 0; i < 4; i++) {
 		LIST_APPEND(list, INSTRUCTION*, instruction_create(ADD_8, NULL));
 	}
+	return list;
+}
+
+int main(int argc, char **argv) {
+	LIST* program = NULL;
+	if(argc == 3 && strcmp(argv[1],"-i") == 0) {
+		ASM_LEXER* lexer = asm_lexer_init(argv[2]);
+		asm_lexer_process(lexer);
+		program = lexer->instructions;
+	} else {
+		program = sum_one_to_five();
+	}
+
 	STACK* stack = stack_init();
-	for(int i = 0; i < list->pointer + 1; i++) {
-		exec_instruction(stack, LIST_GET(list, INSTRUCTION*, i));
+	for(int i = 0; i < program->pointer + 1; i++) {
+		exec_instruction(stack, LIST_GET(program, INSTRUCTION*, i));
 	}
     for (int i = 0; i < stack->top + 21; i++) {
         printf("%02X ", stack->data[i]);
