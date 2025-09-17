@@ -21,7 +21,7 @@ void push_4b(STACK* stack, uint32_t val);
 uint8_t pop_byte(STACK* stack);
 uint16_t pop_2b(STACK* stack);
 uint32_t pop_4b(STACK* stack);
-
+void print_stack(int length, uint8_t* data);
 // add (23, 8), (32, 16)
 
 #endif

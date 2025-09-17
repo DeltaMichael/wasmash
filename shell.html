@@ -3,34 +3,435 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Emscripten-Generated Code</title>
+    <title>Stack VM IDE</title>
     <style>
-      .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
-      textarea.emscripten { font-family: monospace; width: 80%; }
-      div.emscripten { text-align: center; }
-      div.emscripten_border { border: 1px solid black; }
-      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
-      canvas.emscripten { border: 0px none; background-color: black; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #1e1e1e;
+        color: #d4d4d4;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .ide-container {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        grid-template-rows: 40px 1fr;
+        height: 100vh;
+      }
+
+      .toolbar {
+        grid-column: 1 / -1;
+        background: #2d2d30;
+        border-bottom: 1px solid #3e3e42;
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        gap: 12px;
+      }
+
+      .toolbar button {
+        background: #0e639c;
+        color: white;
+        border: none;
+        padding: 6px 16px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: background 0.2s;
+      }
+
+      .toolbar button:hover {
+        background: #1177bb;
+      }
+
+      .toolbar button:active {
+        background: #0d5999;
+      }
+
+      .main-panel {
+        display: grid;
+        grid-template-rows: 1fr 200px;
+        background: #252526;
+      }
+
+      .editor-container {
+        display: flex;
+        flex-direction: column;
+        border-bottom: 1px solid #3e3e42;
+      }
+
+      .editor-tabs {
+        background: #2d2d30;
+        border-bottom: 1px solid #3e3e42;
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        height: 35px;
+      }
+
+      .tab {
+        background: #3c3c3c;
+        color: #cccccc;
+        padding: 6px 16px;
+        border: none;
+        cursor: pointer;
+        border-radius: 3px 3px 0 0;
+        font-size: 13px;
+        margin-right: 2px;
+      }
+
+      .tab.active {
+        background: #1e1e1e;
+        color: #ffffff;
+      }
+
+      .editor {
+        flex: 1;
+        background: #1e1e1e;
+        color: #d4d4d4;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        border: none;
+        outline: none;
+        padding: 16px;
+        resize: none;
+        tab-size: 2;
+      }
+
+      .editor:focus {
+        background: #1e1e1e;
+      }
+
+      .run-panel {
+        background: #1e1e1e;
+        border-top: 1px solid #3e3e42;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .run-header {
+        background: #2d2d30;
+        padding: 8px 16px;
+        border-bottom: 1px solid #3e3e42;
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .run-output {
+        flex: 1;
+        background: #1e1e1e;
+        color: #cccccc;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 13px;
+        line-height: 1.4;
+        border: none;
+        outline: none;
+        padding: 12px;
+        resize: none;
+        overflow-y: auto;
+      }
+
+      .side-panel {
+        background: #252526;
+        border-left: 1px solid #3e3e42;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .stack-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .stack-header {
+        background: #2d2d30;
+        padding: 12px 16px;
+        border-bottom: 1px solid #3e3e42;
+        font-size: 13px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .stack-icon {
+        width: 16px;
+        height: 16px;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%23cccccc" stroke-width="2"><rect x="3" y="4" width="18" height="4"></rect><rect x="3" y="10" width="18" height="4"></rect><rect x="3" y="16" width="18" height="4"></rect></svg>') no-repeat center;
+      }
+
+      .stack-content {
+        flex: 1;
+        padding: 12px;
+        overflow-y: auto;
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .stack-item {
+        background: #2d2d30;
+        border: 1px solid #3e3e42;
+        border-radius: 3px;
+        padding: 8px 12px;
+        margin-bottom: 4px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+      }
+
+      .stack-item:hover {
+        background: #37373d;
+      }
+
+      .stack-index {
+        color: #569cd6;
+        font-weight: 600;
+        min-width: 30px;
+      }
+
+      .stack-value {
+        color: #ce9178;
+        font-weight: 500;
+      }
+
+      .status-bar {
+        grid-column: 1 / -1;
+        background: #007acc;
+        color: white;
+        padding: 4px 16px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .run-icon {
+        width: 12px;
+        height: 12px;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><polygon points="5,3 19,12 5,21"></polygon></svg>') no-repeat center;
+        margin-right: 4px;
+      }
+
+      .output-icon {
+        width: 14px;
+        height: 14px;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="4,17 10,11 4,5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>') no-repeat center;
+      }
+
+      /* Scrollbar styles */
+      ::-webkit-scrollbar {
+        width: 14px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #1e1e1e;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #424242;
+        border-radius: 7px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #4f4f4f;
+      }
+
+      /* Syntax highlighting for the editor */
+      .editor::placeholder {
+        color: #6a9955;
+        font-style: italic;
+      }
+
+      .clear-btn {
+        background: #6d6d6d !important;
+        padding: 4px 12px !important;
+        font-size: 11px !important;
+        margin-left: auto;
+      }
+
+      .clear-btn:hover {
+        background: #7d7d7d !important;
+      }
     </style>
   </head>
   <body>
-    <hr/>
-    <textarea class="emscripten" id="output" rows="8"></textarea>
-	<button class = "emscripten" id="runBtn">Run C main()</button>
-    <hr>
-	{{{ SCRIPT }}}
+    <div class="ide-container">
+      <div class="toolbar">
+        <button id="runBtn">
+          Run Program
+        </button>
+        <button onclick="clearOutput()">Clear Output</button>
+        <button onclick="clearStack()">Clear Stack</button>
+      </div>
+
+      <div class="main-panel">
+        <div class="editor-container">
+          <div class="editor-tabs">
+            <button class="tab active">main.stack</button>
+          </div>
+          <textarea
+            class="editor"
+            id="codeEditor"
+            placeholder="// Enter your stack-based program here
+// Example:
+push8 0;
+push8 1;
+push8 2;
+push8 3;
+push8 4;
+push8 5;
+add8;
+add8;
+add8;
+add8;
+add8;"
+            spellcheck="false">push8 0;
+push8 1;
+push8 2;
+push8 3;
+push8 4;
+push8 5;
+add8;
+add8;
+add8;
+add8;
+add8;</textarea>
+        </div>
+
+        <div class="run-panel">
+          <div class="run-header">
+            <div class="output-icon"></div>
+            Output
+            <button class="clear-btn" onclick="clearOutput()">Clear</button>
+          </div>
+          <textarea class="run-output" id="output" readonly></textarea>
+        </div>
+      </div>
+
+      <div class="side-panel">
+        <div class="stack-container">
+          <div class="stack-header">
+            <div class="stack-icon"></div>
+            Stack View
+            <button class="clear-btn" onclick="clearStack()">Clear</button>
+          </div>
+          <div class="stack-content" id="stackView">
+            <div style="color: #6a9955; text-align: center; font-style: italic; margin-top: 20px;">
+              Stack is empty<br>
+              Run your program to see stack contents
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{{ SCRIPT }}}
     <script type='text/javascript'>
-	  window.addEventListener('load', function() {
+      let Module;
+      let stackData = [];
+
+      function clearOutput() {
+        document.getElementById("output").value = "";
+      }
+
+      function clearStack() {
+        stackData = [];
+        updateStackView();
+      }
+
+      function updateStackView() {
+        const stackView = document.getElementById("stackView");
+        if (stackData.length === 0) {
+          stackView.innerHTML = `
+            <div style="color: #6a9955; text-align: center; font-style: italic; margin-top: 20px;">
+              Stack is empty<br>
+              Run your program to see stack contents
+            </div>
+          `;
+          return;
+        }
+
+        let html = '';
+        // Show stack with top at the bottom (most recent operations)
+        for (let i = stackData.length - 1; i >= 0; i--) {
+          html += `
+            <div class="stack-item">
+              <span class="stack-index">[${i}]</span>
+              <span class="stack-value">${stackData[i].toString(16).padStart(2, '0').toUpperCase()}</span>
+            </div>
+          `;
+        }
+        stackView.innerHTML = html;
+      }
+
+      // Mock stack operations for demonstration
+      function simulateStackOperations(code) {
+        stackData = [];
+        const lines = code.split('\n').filter(line => line.trim());
+
+        lines.forEach(line => {
+          const trimmed = line.trim().replace(';', '');
+          if (trimmed.startsWith('push8')) {
+            const value = trimmed.split(' ')[1];
+            if (!isNaN(value)) {
+              stackData.push(parseInt(value));
+              updateStackView();
+            }
+          } else if (trimmed === 'add8' && stackData.length >= 2) {
+            const b = stackData.pop();
+            const a = stackData.pop();
+            stackData.push(a + b);
+            updateStackView();
+          }
+        });
+      }
+
+      window.addEventListener('load', function() {
         Foo({
           print: (...args) => {
             console.log(...args);
-            document.getElementById("output").value += args.join(" ") + "\n";
+            const output = document.getElementById("output");
+            output.value += args.join(" ") + "\n";
+            output.scrollTop = output.scrollHeight;
+
+            // Parse output for stack visualization (this is a simple example)
           }
-        }).then(Module => {
+        }).then(ModuleInstance => {
+          Module = ModuleInstance;
           document.getElementById("runBtn").onclick = () => {
-            Module.callMain(["-i", "push8 0;\npush8 1;\npush8 2;\npush8 3;\npush8 4;\npush8 5;\nadd8;\nadd8;\nadd8;\nadd8;\nadd8;\n"]);
+            const code = document.getElementById("codeEditor").value;
+            clearOutput();
+            // simulateStackOperations(code); // For stack visualization
+            Module.callMain(["-i", code]);
           };
         });
+      });
+
+      // Auto-resize text areas
+      function autoResize(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      }
+
+      // Add some keyboard shortcuts
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          document.getElementById("runBtn").click();
+        }
       });
     </script>
   </body>
