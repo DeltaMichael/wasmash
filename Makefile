@@ -1,6 +1,9 @@
 CC=emcc
 CFLAGS=-std=gnu99 -sEXPORTED_FUNCTIONS=_main -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,callMain,HEAPU8 -sMODULARIZE=1 -sEXPORT_NAME=Foo -sENVIRONMENT=web -sASYNCIFY=0 -sINVOKE_RUN=0
 
+# CC=gcc
+# CFLAGS=-Wextra -Wall -Wundef -Wswitch-default -Wswitch-enum
+
 IDIR=include
 ODIR=obj
 ARTEFACT=index
@@ -16,8 +19,14 @@ $(ODIR)/%.o: %.c $(DEPS)
 
 mishmash: $(OBJ)
 	$(CC) $^ -o $(ARTEFACT).html --shell-file shell.html $(CFLAGS)
+	# $(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
 .PHONY: clean
 
 clean:
 	rm $(OBJ) $(ARTEFACT)*
+
+.PHONY: run
+
+run:
+	python -m http.server
