@@ -64,7 +64,7 @@ uint32_t pop_4b(STACK* stack) {
 void print_stack(int length, uint8_t* data) {
     for (int i = 0; i < length; i++) {
         printf("%02X ", data[i]);
-		if(i != 0 && i % 8 == 0) {
+		if((i + 1) % 8 == 0 || i == length - 1) {
 			printf("\n");
 		}
     }
