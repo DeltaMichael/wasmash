@@ -28,21 +28,10 @@ char *read_file(char *path)
 	return out;
 }
 
-LIST* sum_one_to_five() {
-	LIST* list = LIST_INIT(INSTRUCTION*, 256);
-	uint8_t data[5] = {1, 2, 3, 4, 5};
-	for(uint8_t i = 0; i < 5; i++) {
-		LIST_APPEND(list, INSTRUCTION*, instruction_create(PUSH_8, &data[i]));
-	}
-	for(uint8_t i = 0; i < 4; i++) {
-		LIST_APPEND(list, INSTRUCTION*, instruction_create(ADD_8, NULL));
-	}
-	return list;
-}
-
 int main(int argc, char **argv) {
 	LIST* program = NULL;
-	if(argc == 3 && strcmp(argv[1],"-i") == 0) {
+	if(argc >= 3 && strcmp(argv[1],"-i") == 0) {
+		// TODO: Fix it, does not currently work
 		ASM_LEXER* lexer = asm_lexer_init(argv[2]);
 		asm_lexer_process(lexer);
 		program = lexer->instructions;
@@ -52,14 +41,21 @@ int main(int argc, char **argv) {
 		asm_lexer_process(lexer);
 		program = lexer->instructions;
 	} else {
-		program = sum_one_to_five();
+		#ifdef __EMSCRIPTEN__
+			// TODO: Figure this out
+		#else
+			printf("Usage\n");
+			printf("mishmash -f /path/to/program/file\n");
+			printf("mishmash -i 'inline instructions'\n");
+			return 1;
+		#endif
 	}
 
 	// TODO: Read this one line at a time
 	// Or some other streaming solution
 	// Reading the entire file in memory is quite bad
 	STACK* stack = stack_init();
-	for(int i = 0; i < program->pointer; i++) { // TODO: test this with emscripten, might have to be program->pointer + 1
+	for(int i = 0; i < program->pointer + 1; i++) { // TODO: test this with emscripten, might have to be program->pointer + 1
 		exec_instruction(stack, LIST_GET(program, INSTRUCTION*, i));
 	}
 

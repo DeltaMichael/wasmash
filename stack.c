@@ -36,12 +36,12 @@ void push_4b(STACK* stack, uint32_t val) {
 
 uint8_t pop_byte(STACK* stack) {
 	if(stack->top < 0) {
-		// TODO: Handle this gracefully
-		exit(1);
+		// TODO: Do we need an error code?
+		return 0;
 	}
 	uint8_t out = stack->data[stack->top];
 	stack->data[stack->top] = 0;
-	stack->top--;
+	decrement_top(stack);
 	return out;
 }
 
@@ -68,5 +68,11 @@ void print_stack(int length, uint8_t* data) {
 			printf("\n");
 		}
     }
+}
+
+void decrement_top(STACK* stack) {
+	if(stack->top >= 0) {
+		stack->top--;
+	}
 }
 

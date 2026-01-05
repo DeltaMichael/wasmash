@@ -25,7 +25,9 @@ uint8_t exec_instruction(STACK* stack, INSTRUCTION* instr) {
 			pop_byte(stack);
 			break;
 		case ADD_8:
-			push_byte(stack, pop_byte(stack) + pop_byte(stack));
+			first = pop_byte(stack);
+			second = pop_byte(stack);
+			push_byte(stack,  first + second);
 			break;
 		case MUL_8:
 			push_byte(stack, pop_byte(stack) * pop_byte(stack));
