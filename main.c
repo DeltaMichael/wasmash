@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 #ifdef __EMSCRIPTEN__
 	js_update_stack(machine->stack->top + 1, stack->data);
 #else
-	print_stack(21, machine->stack->data);
+	// print_stack(21, machine->stack->data);
 #endif
     return 0;
 }

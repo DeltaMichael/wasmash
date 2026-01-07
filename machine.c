@@ -47,6 +47,13 @@ uint8_t machine_exec_next_instruction(MACHINE* machine) {
 			second = pop_byte(machine->stack);
 			push_byte(machine->stack, second / first);
 			break;
+        case PRINT_8:
+            // TODO: This should be done via syscall
+            // Also, eleminate the waste of popping and pushing
+            first = pop_byte(machine->stack);
+            printf("%02X\n", first);
+            push_byte(machine->stack, first);
+            break;
 		default:
 			// TODO: Handle this gracefully with error codes
 			printf("Unimplemented instruction. Exiting...");

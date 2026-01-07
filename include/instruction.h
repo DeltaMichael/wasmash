@@ -10,6 +10,7 @@ typedef enum {
 	DIV_8,
 	PUSH_8,
 	POP_8,
+	PRINT_8, // TODO: There should be a way to implement this wiht syscall, cause it's faster
 	JMP
 } OPCODE;
 
