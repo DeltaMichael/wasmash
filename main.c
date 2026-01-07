@@ -4,6 +4,7 @@
 #include "include/instruction.h"
 #include "include/list.h"
 #include "include/asm_lexer.h"
+#include "include/machine.h"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -51,18 +52,14 @@ int main(int argc, char **argv) {
 		#endif
 	}
 
-	// TODO: Read this one line at a time
-	// Or some other streaming solution
-	// Reading the entire file in memory is quite bad
-	STACK* stack = stack_init();
-	for(int i = 0; i < program->pointer + 1; i++) { // TODO: test this with emscripten, might have to be program->pointer + 1
-		exec_instruction(stack, LIST_GET(program, INSTRUCTION*, i));
-	}
+	MACHINE *machine = machine_init();
+	machine_set_instructions(machine, program);
+	machine_exec_program(machine);
 
 #ifdef __EMSCRIPTEN__
-	js_update_stack(stack->top + 1, stack->data);
+	js_update_stack(machine->stack->top + 1, stack->data);
 #else
-	print_stack(21, stack->data);
+	print_stack(21, machine->stack->data);
 #endif
     return 0;
 }

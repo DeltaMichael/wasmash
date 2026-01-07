@@ -12,7 +12,7 @@
 ### VM
 
 - introduce binary format and split the asm compiler from the VM for local runs
-- implement all 8-bit instructions
+- implement all 8-bit instructions: conditional and unconditional jump, labels?
 - relative addressing
 - registers
 - return values

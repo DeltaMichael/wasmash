@@ -10,6 +10,7 @@ typedef enum {
 	DIV_8,
 	PUSH_8,
 	POP_8,
+	JMP
 } OPCODE;
 
 typedef struct {
@@ -18,7 +19,6 @@ typedef struct {
 } INSTRUCTION;
 
 INSTRUCTION* instruction_create(OPCODE code, uint8_t* data);
-uint8_t exec_instruction(STACK* stack, INSTRUCTION* instr);
 
 #endif
 
