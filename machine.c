@@ -63,7 +63,7 @@ uint8_t machine_exec_next_instruction(MACHINE* machine) {
 }
 
 uint8_t machine_exec_program(MACHINE* machine) {
-    while(machine->program_counter <= machine->instructions->pointer) {
+    while(machine->program_counter < machine->instructions->size) {
         machine_exec_next_instruction(machine);
         machine->program_counter++;
     }

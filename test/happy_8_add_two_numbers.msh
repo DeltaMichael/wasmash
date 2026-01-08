@@ -1,0 +1,5 @@
+// 0F
+push8 5;
+push8 10;
+add8;
+print8;

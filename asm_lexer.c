@@ -32,6 +32,10 @@ bool is_whitespace(char symbol) {
 	return symbol == ' ' || symbol == '\t' || symbol == '\r' || symbol == '\n';
 }
 
+bool is_forward_slash(char symbol) {
+	return symbol == '/';
+}
+
 void asm_lexer_advance(ASM_LEXER* lexer) {
 	lexer->current++;
 }
@@ -40,12 +44,26 @@ char asm_lexer_current(ASM_LEXER* lexer) {
 	return lexer->input[lexer->current];
 }
 
+char asm_lexer_peek(ASM_LEXER* lexer) {
+	if(asm_lexer_at_end(lexer)) {
+		return 0;
+	} else {
+		return lexer->input[lexer->current + 1];
+	}
+}
+
 bool asm_lexer_at_end(ASM_LEXER* lexer) {
 	return lexer->input[lexer->current] == 0;
 }
 
 void asm_lexer_skip_whitespace(ASM_LEXER* lexer) {
 	while(is_whitespace(asm_lexer_current(lexer))) {
+		asm_lexer_advance(lexer);
+	}
+}
+
+void asm_lexer_skip_line(ASM_LEXER* lexer) {
+	while(!asm_lexer_at_end(lexer) && asm_lexer_current(lexer) != '\n') {
 		asm_lexer_advance(lexer);
 	}
 }
@@ -78,6 +96,10 @@ void asm_lexer_process(ASM_LEXER* lexer) {
 				argument = asm_lexer_number(lexer);
 			} else if(is_whitespace(asm_lexer_current(lexer))) {
 				asm_lexer_advance(lexer);
+			} else if(is_forward_slash(asm_lexer_current(lexer))) {
+				if(is_forward_slash(asm_lexer_peek(lexer))) {
+					asm_lexer_skip_line(lexer);
+				}
 			}
 		}
 		asm_lexer_advance(lexer); // skip the lineterm

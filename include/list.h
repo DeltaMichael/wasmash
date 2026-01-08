@@ -8,10 +8,11 @@
 typedef struct {
 	int32_t capacity;
 	int32_t pointer;
+	int32_t size;
 	void* data;
 } LIST;
 
-#define LIST_INIT(type, cap) ({ LIST* list = malloc(sizeof(LIST)); list->capacity = cap; list->pointer = -1; list->data = (type*)malloc(cap * sizeof(type)); list; })
+#define LIST_INIT(type, cap) ({ LIST* list = malloc(sizeof(LIST)); list->capacity = cap; list->pointer = -1; list->size = 0; list->data = (type*)malloc(cap * sizeof(type)); list; })
 #define LIST_APPEND(list, type, value) \
 	({ \
 	 	type temp = (value); \
@@ -28,6 +29,7 @@ typedef struct {
 		type* data = (type*)list->data;\
 		data[list->pointer + 1] = temp; \
 		list->pointer++; \
+		list->size++; \
 	})
 
 // TODO: Handle errors gracefully
