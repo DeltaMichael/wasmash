@@ -1,5 +1,5 @@
-// 0xO5 
-push8 5;
+// 05
 push8 10;
+push8 5;
 sub8;
 print8;

@@ -1,0 +1,16 @@
+// 04
+// 04
+// 03
+push 1;
+push 2;
+push 3;
+push 4;
+ltop $sp; // load value at stack pointer on top
+ltop $sp + 2; // load value at stack pointer + 2 on top
+add8; // add values
+print8;
+lrel $sp; // change value at stack pointer to equal value at top
+ltop $sp; // load value at stack pointer on top
+print8;
+ltop $sp + 2; // load value at stack pointer + 2 on top
+print8;

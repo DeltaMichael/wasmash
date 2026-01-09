@@ -117,6 +117,12 @@ void asm_lexer_process(ASM_LEXER* lexer) {
 			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(PUSH_8, data));
 		} else if (strcmp("add8", instr) == 0) {
 			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(ADD_8, NULL));
+		} else if (strcmp("sub8", instr) == 0) {
+			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(SUB_8, NULL));
+		} else if (strcmp("div8", instr) == 0) {
+			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(DIV_8, NULL));
+		} else if (strcmp("mul8", instr) == 0) {
+			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(MUL_8, NULL));
 		} else if (strcmp("pop8", instr) == 0) {
 			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(POP_8, NULL));
 		} else if (strcmp("print8", instr) == 0) {
