@@ -47,6 +47,34 @@ uint8_t machine_exec_next_instruction(MACHINE* machine) {
 			second = pop_byte(machine->stack);
 			push_byte(machine->stack, second / first);
 			break;
+		case LTOP_8:
+			if(instr->data == NULL) {
+				printf("Push instruction should have data");
+				exit(1);
+			}
+			if(machine->stack->top < 0) {
+				// TODO: Decide if we can address garbage or not
+			}
+			first = machine->stack->data[machine->stack->sp + instr->data[0]]; // TODO: Pull the whole offset, not just the first 8 bytes
+			push_byte(machine->stack, first);
+			break;
+		case LTOP_8_ABS:
+			break;
+		case LREL_8:
+			if(instr->data == NULL) {
+				printf("Push instruction should have data");
+				exit(1);
+			}
+			if(machine->stack->top < 0) {
+				// TODO: Decide if we can address garbage or not
+			}
+			first = pop_byte(machine->stack);
+			machine->stack->data[machine->stack->sp + instr->data[0]] = first; // TODO: Pull the whole offset, not just the first 8 bytes
+			break;
+		case LREL_8_ABS:
+			break;
+		case JMP:
+			break;
         case PRINT_8:
             // TODO: This should be done via syscall
             // Also, eleminate the waste of popping and pushing

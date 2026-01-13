@@ -10,6 +10,7 @@ STACK* stack_init() {
 	STACK* out = calloc(1, sizeof(STACK));
 	out->cap = 1024;
 	out->top = -1;
+	out->sp = 0;
 	out->data = calloc(1024, sizeof(uint8_t));
 	return out;
 }
@@ -58,6 +59,16 @@ uint32_t pop_4b(STACK* stack) {
 	uint32_t out = pop_2b(stack);
 	out = out << 16;
 	out = out | (uint32_t)word;
+	return out;
+}
+
+
+uint8_t get_byte(STACK* stack, int64_t index) {
+	if(stack->top < 0) {
+		// TODO: Do we need an error code?
+		return 0;
+	}
+	uint8_t out = stack->data[index];
 	return out;
 }
 

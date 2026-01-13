@@ -107,14 +107,32 @@ void asm_lexer_process(ASM_LEXER* lexer) {
 			return; // TODO: Is there any other reason an instruction would be null, other than EOF?
 		}
 		if(strcmp("push8", instr) == 0) {
-			uint8_t* data = malloc(sizeof(uint8_t));
 			if(argument == NULL) {
 				// TODO: Error handling
 				printf("Instruction argument to push8 is null");
 				exit(1);
 			}
+			uint8_t* data = malloc(sizeof(uint8_t));
 			*data = atoi(argument);
 			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(PUSH_8, data));
+		} else if (strcmp("ltop8", instr) == 0) {
+			if(argument == NULL) {
+				// TODO: Error handling
+				printf("Instruction argument to push8 is null");
+				exit(1);
+			}
+			uint8_t* data = malloc(sizeof(uint8_t));
+			*data = atoi(argument);
+			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(LTOP_8, data));
+		} else if (strcmp("lrel8", instr) == 0) {
+			if(argument == NULL) {
+				// TODO: Error handling
+				printf("Instruction argument to push8 is null");
+				exit(1);
+			}
+			uint8_t* data = malloc(sizeof(uint8_t));
+			*data = atoi(argument);
+			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(LREL_8, data));
 		} else if (strcmp("add8", instr) == 0) {
 			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(ADD_8, NULL));
 		} else if (strcmp("sub8", instr) == 0) {

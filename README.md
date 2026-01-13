@@ -11,13 +11,15 @@
 
 ### VM
 
-- introduce binary format and split the asm compiler from the VM for local runs
-- implement all 8-bit instructions: conditional and unconditional jump, labels?
 - relative addressing
-- registers
+- branching
+- labels?
+- registers?
+- function calls
 - return values
 - heap
-- function calls
+- garbage collection
+- multi-threading
 
 ### Testing
 
