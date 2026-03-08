@@ -31,6 +31,7 @@ char *read_file(char *path)
 
 int main(int argc, char **argv) {
 	LIST* program = NULL;
+	LIST* jump_table = NULL;
 	if(argc >= 3 && strcmp(argv[1],"-i") == 0) {
 		// TODO: Fix it, does not currently work
 		ASM_LEXER* lexer = asm_lexer_init(argv[2]);
@@ -41,6 +42,7 @@ int main(int argc, char **argv) {
 		ASM_LEXER* lexer = asm_lexer_init(raw_input);
 		asm_lexer_process(lexer);
 		program = lexer->instructions;
+		jump_table = lexer->jump_table;
 	} else {
 		#ifdef __EMSCRIPTEN__
 			// TODO: Figure this out
@@ -54,6 +56,7 @@ int main(int argc, char **argv) {
 
 	MACHINE *machine = machine_init();
 	machine_set_instructions(machine, program);
+	machine_set_jump_table(machine, jump_table);
 	machine_exec_program(machine);
 
 #ifdef __EMSCRIPTEN__

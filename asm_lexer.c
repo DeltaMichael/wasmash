@@ -7,8 +7,10 @@
 ASM_LEXER* asm_lexer_init(char* input) {
 	ASM_LEXER* lexer = malloc(sizeof(ASM_LEXER));
 	lexer->current = 0;
+	lexer->line_count = 1;
 	lexer->input = input;
 	lexer->instructions = LIST_INIT(INSTRUCTION*, 128);
+	lexer->jump_table = LIST_INIT(uint32_t, 128);
 	return lexer;
 }
 
@@ -98,6 +100,7 @@ void asm_lexer_process(ASM_LEXER* lexer) {
 				asm_lexer_advance(lexer);
 			} else if(is_forward_slash(asm_lexer_current(lexer))) {
 				if(is_forward_slash(asm_lexer_peek(lexer))) {
+					LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
 					asm_lexer_skip_line(lexer);
 				}
 			}
@@ -179,6 +182,8 @@ void asm_lexer_process(ASM_LEXER* lexer) {
 			printf("Unknown instruction %s\n", instr);
 			exit(1);
 		}
+		LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
+		lexer->line_count += 1;
 		if(instr != NULL) {
 			free(instr);
 			instr = NULL;

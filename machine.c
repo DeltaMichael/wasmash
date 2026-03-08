@@ -15,6 +15,10 @@ void machine_set_instructions(MACHINE *machine, LIST* instructions) {
     machine->instructions = instructions;
 }
 
+void machine_set_jump_table(MACHINE *machine, LIST* jump_table) {
+    machine->jump_table = jump_table;
+}
+
 uint8_t machine_exec_next_instruction(MACHINE* machine) {
     INSTRUCTION *instr = LIST_GET(machine->instructions, INSTRUCTION*, machine->program_counter);
 	uint8_t first;

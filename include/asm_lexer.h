@@ -8,7 +8,9 @@
 typedef struct {
 	char* input;
 	uint32_t current;
+	uint32_t line_count;
 	LIST* instructions;
+	LIST* jump_table;
 } ASM_LEXER;
 
 ASM_LEXER* asm_lexer_init(char* input);
