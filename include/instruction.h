@@ -15,7 +15,10 @@ typedef enum {
 	LTOP_8_ABS, // push the value at an absolute address
 	LREL_8, // load data on top of the stack to address relative to the stack pointer
 	LREL_8_ABS, // load data on top of the stack to absolute address
-	JMP
+	JMP_8, // jump to address
+	CMP_8, // compare two values
+	JZ_8, // jump if comparison result is zero
+	JNZ_8, // jump if comparison result is non-zero
 } OPCODE;
 
 typedef struct {

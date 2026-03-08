@@ -124,6 +124,33 @@ void asm_lexer_process(ASM_LEXER* lexer) {
 			uint8_t* data = malloc(sizeof(uint8_t));
 			*data = atoi(argument);
 			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(LTOP_8, data));
+		} else if (strcmp("jz8", instr) == 0) {
+			if(argument == NULL) {
+				// TODO: Error handling
+				printf("Instruction argument to push8 is null");
+				exit(1);
+			}
+			uint8_t* data = malloc(sizeof(uint8_t));
+			*data = atoi(argument);
+			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(JZ_8, data));
+		} else if (strcmp("jnz8", instr) == 0) {
+			if(argument == NULL) {
+				// TODO: Error handling
+				printf("Instruction argument to push8 is null");
+				exit(1);
+			}
+			uint8_t* data = malloc(sizeof(uint8_t));
+			*data = atoi(argument);
+			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(JNZ_8, data));
+		} else if (strcmp("jmp8", instr) == 0) {
+			if(argument == NULL) {
+				// TODO: Error handling
+				printf("Instruction argument to push8 is null");
+				exit(1);
+			}
+			uint8_t* data = malloc(sizeof(uint8_t));
+			*data = atoi(argument);
+			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(JMP_8, data));
 		} else if (strcmp("lrel8", instr) == 0) {
 			if(argument == NULL) {
 				// TODO: Error handling
@@ -145,9 +172,11 @@ void asm_lexer_process(ASM_LEXER* lexer) {
 			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(POP_8, NULL));
 		} else if (strcmp("print8", instr) == 0) {
 			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(PRINT_8, NULL));
+		} else if (strcmp("cmp8", instr) == 0) {
+			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(CMP_8, NULL));
 		} else {
 			// TODO: Proper error handling
-			printf("Unknown instruction");
+			printf("Unknown instruction %s\n", instr);
 			exit(1);
 		}
 		if(instr != NULL) {

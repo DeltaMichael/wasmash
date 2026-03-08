@@ -8,6 +8,7 @@ typedef struct {
     LIST *instructions;
     STACK *stack;
     uint32_t program_counter;
+    uint8_t cmp_result;
 } MACHINE;
 
 MACHINE *machine_init();

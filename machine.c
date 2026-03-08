@@ -7,6 +7,7 @@ MACHINE *machine_init() {
     MACHINE *machine = malloc(sizeof(MACHINE));
     machine->stack = stack_init();
     machine->program_counter = 0;
+	machine->cmp_result = 2;
     return machine;
 }
 
@@ -73,7 +74,37 @@ uint8_t machine_exec_next_instruction(MACHINE* machine) {
 			break;
 		case LREL_8_ABS:
 			break;
-		case JMP:
+		case JMP_8:
+			if(instr->data == NULL) {
+				printf("JMP instruction should have data");
+				exit(1);
+			}
+			machine->program_counter = instr->data[0] - 2;
+			break;
+		case JZ_8:
+			if (machine->cmp_result == 0) {
+				if(instr->data == NULL) {
+					printf("JMP instruction should have data");
+					exit(1);
+				}
+				machine->program_counter = instr->data[0] - 2;
+			}
+			break;
+		case JNZ_8:
+			if (machine->cmp_result == 1) {
+				if(instr->data == NULL) {
+					printf("JMP instruction should have data");
+					exit(1);
+				}
+				machine->program_counter = instr->data[0] - 2;
+			}
+			break;
+		case CMP_8:
+            first = pop_byte(machine->stack);
+            second = pop_byte(machine->stack);
+			machine->cmp_result = (first == second);
+			push_byte(machine->stack, second);
+			push_byte(machine->stack, first);
 			break;
         case PRINT_8:
             // TODO: This should be done via syscall
@@ -91,7 +122,7 @@ uint8_t machine_exec_next_instruction(MACHINE* machine) {
 }
 
 uint8_t machine_exec_program(MACHINE* machine) {
-    while(machine->program_counter < machine->instructions->size) {
+    while(machine->program_counter < machine->instructions->size && machine->program_counter >= 0) {
         machine_exec_next_instruction(machine);
         machine->program_counter++;
     }
