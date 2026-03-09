@@ -19,6 +19,7 @@ typedef enum {
 	CMP_8, // compare two values
 	JZ_8, // jump if comparison result is zero
 	JNZ_8, // jump if comparison result is non-zero
+	NOP, // no-op
 } OPCODE;
 
 typedef struct {

@@ -121,6 +121,8 @@ uint8_t machine_exec_next_instruction(MACHINE* machine) {
             printf("%02X\n", first);
             push_byte(machine->stack, first);
             break;
+		case NOP:
+			break;
 		default:
 			// TODO: Handle this gracefully with error codes
 			printf("Unimplemented instruction. Exiting...");

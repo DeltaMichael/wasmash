@@ -184,6 +184,8 @@ void asm_lexer_process(ASM_LEXER* lexer) {
 			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(PRINT_8, NULL));
 		} else if (strcmp("cmp8", instr) == 0) {
 			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(CMP_8, NULL));
+		} else if (strcmp("nop", instr) == 0) {
+			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(NOP, NULL));
 		} else {
 			// TODO: Proper error handling
 			printf("Unknown instruction %s\n", instr);
