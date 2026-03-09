@@ -7,7 +7,7 @@
 ASM_LEXER* asm_lexer_init(char* input) {
 	ASM_LEXER* lexer = malloc(sizeof(ASM_LEXER));
 	lexer->current = 0;
-	lexer->line_count = 1;
+	lexer->line_count = 0;
 	lexer->input = input;
 	lexer->instructions = LIST_INIT(INSTRUCTION*, 128);
 	lexer->jump_table = LIST_INIT(uint32_t, 128);

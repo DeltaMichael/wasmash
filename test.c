@@ -32,6 +32,8 @@ LIST *get_expected_values(char *test_file_name)
 			}
 			value[value_index] = 0;
 			LIST_APPEND(output, char*, value);
+		} else {
+			break;
 		}
 	}
 	fclose(file);
