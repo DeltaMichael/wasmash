@@ -34,6 +34,10 @@ bool is_whitespace(char symbol) {
 	return symbol == ' ' || symbol == '\t' || symbol == '\r' || symbol == '\n';
 }
 
+bool is_newline(char symbol) {
+	return symbol == '\n';
+}
+
 bool is_forward_slash(char symbol) {
 	return symbol == '/';
 }
@@ -61,6 +65,9 @@ bool asm_lexer_at_end(ASM_LEXER* lexer) {
 void asm_lexer_skip_whitespace(ASM_LEXER* lexer) {
 	while(is_whitespace(asm_lexer_current(lexer))) {
 		asm_lexer_advance(lexer);
+		if(is_newline(asm_lexer_current(lexer))) {
+			LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
+		}
 	}
 }
 
