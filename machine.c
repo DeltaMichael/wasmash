@@ -134,6 +134,7 @@ uint8_t machine_exec_next_instruction(MACHINE* machine) {
 uint8_t machine_exec_program(MACHINE* machine) {
     while(machine->program_counter < machine->instructions->size && machine->program_counter >= 0) {
         machine_exec_next_instruction(machine);
+		// print_stack(21, machine->stack->data);
         machine->program_counter++;
     }
     return 0;

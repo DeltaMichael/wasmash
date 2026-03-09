@@ -1,0 +1,30 @@
+// 01
+// 01
+// 02
+// 03
+// 05
+// 08
+// 0D
+// 15
+// 22
+// 37
+// 59
+// 90
+// E9
+push8 1;
+print8;
+push8 1;
+print8;
+ltop8 0;
+ltop8 1;
+add8;
+print8;
+ltop8 1;
+lrel8 0;
+lrel8 1;
+ltop8 1;
+push8 233; // this is cheating a bit, you have to know the number before you know the number :D
+cmp8;
+pop8;
+pop8;
+jz8 18;
