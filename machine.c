@@ -76,7 +76,7 @@ uint8_t machine_exec_next_instruction(MACHINE* machine) {
 			first = pop_byte(machine->stack);
 			machine->stack->data[machine->stack->sp + instr->data[0]] = first; // TODO: Pull the whole offset, not just the first 8 bytes
 			break;
-		case LREL_8_ABS:
+		case LABS_8:
 			break;
 		case JMP_8:
 			if(instr->data == NULL) {
@@ -139,3 +139,4 @@ uint8_t machine_exec_program(MACHINE* machine) {
     }
     return 0;
 }
+

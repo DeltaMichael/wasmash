@@ -8,13 +8,13 @@ IDIR=include
 ODIR=obj
 ARTEFACT=index
 
-_DEPS=stack.h instruction.h list.h asm_lexer.h machine.h
+_DEPS=stack.h instruction.h list.h hashmap.h asm_lexer.h machine.h
 DEPS=$(patsubst %,$(IDIR)/%,$(_DEPS))
 
 _TEST_DEPS=list.h
 TEST_DEPS=$(patsubst %,$(IDIR)/%,$(_TEST_DEPS))
 
-_OBJ=main.o stack.o instruction.o list.o asm_lexer.o machine.o
+_OBJ=main.o stack.o instruction.o list.o hashmap.o asm_lexer.o machine.o
 OBJ=$(patsubst %,$(ODIR)/%,$(_OBJ))
 
 _TEST_OBJ=test.o list.o
