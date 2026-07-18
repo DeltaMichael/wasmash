@@ -7,6 +7,8 @@
 typedef struct {
 	char* key;
 	int value;
+	int prev;
+	int next;
 	bool active;
 } H_ENTRY;
 
@@ -23,8 +25,8 @@ int hashmap_find_empty(HASHMAP* map, int start);
 int hashmap_find_key_index(HASHMAP* map, int start, char* key);
 int hashmap_get_key_index(HASHMAP* map, char* key);
 void hashmap_insert(HASHMAP* map, char* key, int value);
-int hashmap_get(HASHMAP* map, char* key, int *error_code);
-void hashmap_remove(HASHMAP* map, char* key);
+int hashmap_get(HASHMAP* map, char* key, int *dest);
+int hashmap_remove(HASHMAP* map, char* key);
 
 #endif
 
