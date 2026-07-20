@@ -20,6 +20,9 @@ OBJ=$(patsubst %,$(ODIR)/%,$(_OBJ))
 _TEST_OBJ=test.o list.o
 TEST_OBJ=$(patsubst %,$(ODIR)/%,$(_TEST_OBJ))
 
+_UNITTEST_OBJ=unittest.o list.o
+UNITTEST_OBJ=$(patsubst %,$(ODIR)/%,$(_UNITTEST_OBJ))
+
 $(ODIR)/%.o: %.c $(DEPS)
 	$(CC) -c $< -o $@ $(CFLAGS) -I$(IDIR)
 
@@ -30,10 +33,13 @@ mishmash: $(OBJ)
 testmash: $(TEST_OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
+unitmash: $(UNITTEST_OBJ)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+
 .PHONY: clean
 
 clean:
-	rm -f $(OBJ) $(TEST_OBJ) $(ARTEFACT)* testmash mishmash
+	rm -f $(OBJ) $(TEST_OBJ) $(ARTEFACT)* unitmash testmash mishmash
 
 .PHONY: run
 

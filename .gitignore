@@ -2,6 +2,7 @@ obj/*
 index*
 mishmash
 testmash
+unitmash
 program.msh
 .ccls-cache
 .vscode

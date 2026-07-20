@@ -57,8 +57,7 @@ LIST *run_program_and_get_output(char *test_file_name)
 	return output;
 }
 
-void print_expected_output(LIST *expected, LIST *actual)
-{
+void print_expected_output(LIST *expected, LIST *actual) {
 	printf("EXPECTED OUTPUT:\n");
 	for (int i = 0; i < expected->size; i++) {
 		printf("%s", LIST_GET(expected, char*, i));
@@ -130,3 +129,4 @@ int main(int argc, char **argv)
 	// run_test("sad_unexpected_token.msh");
 	return 0;
 }
+
