@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include "include/hashmap.h"
 
-int hash_string(HASHMAP* map, char* key) {
+int hash_string(char* key, int capacity) {
 	double sum = 0;
 	int i = 0;
 	int p = 53;
@@ -16,21 +16,26 @@ int hash_string(HASHMAP* map, char* key) {
 		key++;
 	}
 	uint64_t temp = sum;
-	temp = temp % map->capacity;
+	temp = temp % capacity;
 	return (int)temp;
 }
 
-HASHMAP* hashmap_init() {
+HASHMAP* hashmap_init_with_capacity(int capacity) {
 	HASHMAP* map = malloc(sizeof(HASHMAP));
-	map->capacity = 256;
+	map->capacity = capacity;
 	map->current_size = 0;
 	map->data = calloc(map->capacity, sizeof(H_ENTRY));
+	map->hash = hash_string;
 	for (int i = 0; i < map->capacity; i++) {
 		(map->data + i)->active = false;
 		(map->data + i)->prev = -1;
 		(map->data + i)->next = -1;
 	}
 	return map;
+}
+
+HASHMAP* hashmap_init() {
+	return hashmap_init_with_capacity(256);
 }
 
 void hashmap_resize(HASHMAP* map) {
@@ -102,7 +107,7 @@ int hashmap_find_key_index(HASHMAP* map, int start, char* key) {
 }
 
 int hashmap_get_key_index(HASHMAP* map, char* key) {
-	int index = hash_string(map, key);
+	int index = map->hash(key, map->capacity);
 	H_ENTRY *entry = map->data + index;
 	if (entry->key != NULL && strcmp(key, entry->key) == 0) {
 		return index;
@@ -118,7 +123,7 @@ void hashmap_insert(HASHMAP* map, char* key, int value) {
 		hashmap_resize(map);
 	}
 
-	int index = hash_string(map, key);
+	int index = map->hash(key, map->capacity);
 	H_ENTRY *entry = map->data + index;
 
 	// It's a new key
@@ -126,6 +131,7 @@ void hashmap_insert(HASHMAP* map, char* key, int value) {
 		entry->key = strdup(key);
 		entry->value = value;
 		entry->active = true;
+		map->current_size++;
 		return;
 	}
 
@@ -160,7 +166,7 @@ void hashmap_insert(HASHMAP* map, char* key, int value) {
 }
 
 int hashmap_get(HASHMAP* map, char* key, int *dest) {
-	int index = hash_string(map, key);
+	int index = map->hash(key, map->capacity);
 	H_ENTRY *entry = map->data + index;
 	if (!entry->active) {
 		return 1;
@@ -179,7 +185,7 @@ int hashmap_get(HASHMAP* map, char* key, int *dest) {
 }
 
 int hashmap_remove(HASHMAP* map, char* key) {
-	int index = hash_string(map, key);
+	int index = map->hash(key, map->capacity);
 	H_ENTRY *entry = map->data + index;
 
 	if (!entry->active) {

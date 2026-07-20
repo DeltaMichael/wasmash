@@ -1,6 +1,131 @@
 #include "../include/hashmap.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
+
+int always_collision(char* key, int capacity) {
+	return 0;
+}
+
+void test_resize() {
+	HASHMAP *map = hashmap_init_with_capacity(8);
+	char* expected_keys[5] = {"one", "two", "three", "four", "five"};
+	int expected_values[5] = {11, 22, 31, 54, 44};
+
+	for(int i = 0; i < 5; i++) {
+		hashmap_insert(map, expected_keys[i], expected_values[i]);
+	}
+
+	assert(map->capacity == 16);
+
+	for(int i = 0; i < 5; i++) {
+		int value;
+		int error = hashmap_get(map, expected_keys[i], &value);
+		assert(error == 0);
+		assert(value == expected_values[i]);
+	}
+
+}
+
+void test_collisions_insert_get() {
+	HASHMAP *map = hashmap_init();
+	map->hash = always_collision;
+	hashmap_insert(map, "first_key", 27);
+	hashmap_insert(map, "second_key", 28);
+	hashmap_insert(map, "third_key", 20);
+	int value;
+	int error = hashmap_get(map, "first_key", &value);
+	assert(error == 0);
+	assert(value == 27);
+	error = hashmap_get(map, "second_key", &value);
+	assert(error == 0);
+	assert(value == 28);
+	error = hashmap_get(map, "third_key", &value);
+	assert(error == 0);
+	assert(value == 20);
+}
+
+void test_collisions_remove_head() {
+	HASHMAP *map = hashmap_init();
+	map->hash = always_collision;
+	char* expected_keys[5] = {"one", "two", "three", "four", "five"};
+	int expected_values[5] = {11, 23, 38, 45, 57};
+
+	for(int i = 0; i < 5; i++) {
+		hashmap_insert(map, expected_keys[i], expected_values[i]);
+	}
+
+	int value;
+	hashmap_remove(map, "one");
+
+	int error = hashmap_get(map, "one", &value);
+	assert(error == 1);
+
+	for(int i = 1; i < 5; i++) {
+		error = hashmap_get(map, expected_keys[i], &value);
+		assert(error == 0);
+		assert(value == expected_values[i]);
+	}
+}
+
+void test_collisions_remove_tail() {
+	HASHMAP *map = hashmap_init();
+	map->hash = always_collision;
+	char* expected_keys[5] = {"one", "two", "three", "four", "five"};
+	int expected_values[5] = {11, 23, 38, 45, 57};
+
+	for(int i = 0; i < 5; i++) {
+		hashmap_insert(map, expected_keys[i], expected_values[i]);
+	}
+
+	int value;
+	hashmap_remove(map, "five");
+
+	int error = hashmap_get(map, "five", &value);
+	assert(error == 1);
+
+	for(int i = 0; i < 4; i++) {
+		error = hashmap_get(map, expected_keys[i], &value);
+		assert(error == 0);
+		assert(value == expected_values[i]);
+	}
+}
+
+void test_collisions_remove_middle() {
+	HASHMAP *map = hashmap_init();
+	map->hash = always_collision;
+	char* expected_keys[5] = {"one", "two", "three", "four", "five"};
+	int expected_values[5] = {1, 2, 3, 4, 5};
+
+	for(int i = 0; i < 5; i++) {
+		hashmap_insert(map, expected_keys[i], expected_values[i]);
+	}
+
+	int value;
+	hashmap_remove(map, "three");
+	int error = hashmap_get(map, "three", &value);
+	assert(error == 1);
+	error = hashmap_get(map, "one", &value);
+	assert(error == 0);
+	assert(value == 1);
+	error = hashmap_get(map, "two", &value);
+	assert(error == 0);
+	assert(value == 2);
+	error = hashmap_get(map, "four", &value);
+	assert(error == 0);
+	assert(value == 4);
+	error = hashmap_get(map, "five", &value);
+	assert(error == 0);
+	assert(value == 5);
+}
+
+void test_get_non_existant() {
+	HASHMAP *map = hashmap_init();
+	hashmap_insert(map, "mykey", 27);
+	int value;
+	int error = hashmap_get(map, "yourkey", &value);
+	assert(error == 1);
+}
 
 void test_basic_insert_get() {
 	HASHMAP *map = hashmap_init();
@@ -34,5 +159,11 @@ void test_basic_remove() {
 int main(int argc, char** args) {
 	test_basic_insert_get();
 	test_basic_remove();
+	test_collisions_insert_get();
+	test_collisions_remove_head();
+	test_collisions_remove_middle();
+	test_collisions_remove_tail();
+	test_get_non_existant();
+	test_resize();
 }
 

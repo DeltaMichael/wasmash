@@ -16,9 +16,11 @@ typedef struct {
 	H_ENTRY* data;
 	int current_size;
 	int capacity;
+	int (*hash)(char* key, int capacity);
 } HASHMAP;
 
-int hash_string(HASHMAP* map, char* key);
+int hash_string(char* key, int capacity);
+HASHMAP* hashmap_init_with_capacity(int capacity);
 HASHMAP* hashmap_init();
 void hashmap_resize(HASHMAP* map);
 int hashmap_find_empty(HASHMAP* map, int start);
