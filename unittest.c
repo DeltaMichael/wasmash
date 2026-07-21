@@ -30,7 +30,13 @@ bool run_test(char *file_name)
 {
 	bool passed = true;
 	printf("----------%s----------\n", file_name);
-	run_program_and_get_output(file_name);
+	LIST* output = run_program_and_get_output(file_name);
+	if (output->size == 0) {
+		printf("PASSED\n");
+	} else {
+		passed = false;
+		printf("FAILED\n");
+	}
 	printf("----------%s----------\n\n", file_name);
 	return passed;
 }
