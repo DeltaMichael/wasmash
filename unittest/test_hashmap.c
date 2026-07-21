@@ -13,14 +13,14 @@ void test_resize() {
 	int expected_values[5] = {11, 22, 31, 54, 44};
 
 	for(int i = 0; i < 5; i++) {
-		hashmap_insert(map, expected_keys[i], expected_values[i]);
+		hashmap_insert_int(map, expected_keys[i], expected_values[i]);
 	}
 
 	assert(map->capacity == 16);
 
 	for(int i = 0; i < 5; i++) {
 		int value;
-		int error = hashmap_get(map, expected_keys[i], &value);
+		int error = hashmap_get_int(map, expected_keys[i], &value);
 		assert(error == 0);
 		assert(value == expected_values[i]);
 	}
@@ -30,17 +30,17 @@ void test_resize() {
 void test_collisions_insert_get() {
 	HASHMAP *map = hashmap_init();
 	map->hash = always_collision;
-	hashmap_insert(map, "first_key", 27);
-	hashmap_insert(map, "second_key", 28);
-	hashmap_insert(map, "third_key", 20);
+	hashmap_insert_int(map, "first_key", 27);
+	hashmap_insert_int(map, "second_key", 28);
+	hashmap_insert_int(map, "third_key", 20);
 	int value;
-	int error = hashmap_get(map, "first_key", &value);
+	int error = hashmap_get_int(map, "first_key", &value);
 	assert(error == 0);
 	assert(value == 27);
-	error = hashmap_get(map, "second_key", &value);
+	error = hashmap_get_int(map, "second_key", &value);
 	assert(error == 0);
 	assert(value == 28);
-	error = hashmap_get(map, "third_key", &value);
+	error = hashmap_get_int(map, "third_key", &value);
 	assert(error == 0);
 	assert(value == 20);
 }
@@ -52,17 +52,17 @@ void test_collisions_remove_head() {
 	int expected_values[5] = {11, 23, 38, 45, 57};
 
 	for(int i = 0; i < 5; i++) {
-		hashmap_insert(map, expected_keys[i], expected_values[i]);
+		hashmap_insert_int(map, expected_keys[i], expected_values[i]);
 	}
 
 	int value;
 	hashmap_remove(map, "one");
 
-	int error = hashmap_get(map, "one", &value);
+	int error = hashmap_get_int(map, "one", &value);
 	assert(error == 1);
 
 	for(int i = 1; i < 5; i++) {
-		error = hashmap_get(map, expected_keys[i], &value);
+		error = hashmap_get_int(map, expected_keys[i], &value);
 		assert(error == 0);
 		assert(value == expected_values[i]);
 	}
@@ -75,17 +75,17 @@ void test_collisions_remove_tail() {
 	int expected_values[5] = {11, 23, 38, 45, 57};
 
 	for(int i = 0; i < 5; i++) {
-		hashmap_insert(map, expected_keys[i], expected_values[i]);
+		hashmap_insert_int(map, expected_keys[i], expected_values[i]);
 	}
 
 	int value;
 	hashmap_remove(map, "five");
 
-	int error = hashmap_get(map, "five", &value);
+	int error = hashmap_get_int(map, "five", &value);
 	assert(error == 1);
 
 	for(int i = 0; i < 4; i++) {
-		error = hashmap_get(map, expected_keys[i], &value);
+		error = hashmap_get_int(map, expected_keys[i], &value);
 		assert(error == 0);
 		assert(value == expected_values[i]);
 	}
@@ -98,61 +98,61 @@ void test_collisions_remove_middle() {
 	int expected_values[5] = {1, 2, 3, 4, 5};
 
 	for(int i = 0; i < 5; i++) {
-		hashmap_insert(map, expected_keys[i], expected_values[i]);
+		hashmap_insert_int(map, expected_keys[i], expected_values[i]);
 	}
 
 	int value;
 	hashmap_remove(map, "three");
-	int error = hashmap_get(map, "three", &value);
+	int error = hashmap_get_int(map, "three", &value);
 	assert(error == 1);
-	error = hashmap_get(map, "one", &value);
+	error = hashmap_get_int(map, "one", &value);
 	assert(error == 0);
 	assert(value == 1);
-	error = hashmap_get(map, "two", &value);
+	error = hashmap_get_int(map, "two", &value);
 	assert(error == 0);
 	assert(value == 2);
-	error = hashmap_get(map, "four", &value);
+	error = hashmap_get_int(map, "four", &value);
 	assert(error == 0);
 	assert(value == 4);
-	error = hashmap_get(map, "five", &value);
+	error = hashmap_get_int(map, "five", &value);
 	assert(error == 0);
 	assert(value == 5);
 }
 
 void test_get_non_existant() {
 	HASHMAP *map = hashmap_init();
-	hashmap_insert(map, "mykey", 27);
+	hashmap_insert_int(map, "mykey", 27);
 	int value;
-	int error = hashmap_get(map, "yourkey", &value);
+	int error = hashmap_get_int(map, "yourkey", &value);
 	assert(error == 1);
 }
 
 void test_basic_insert_get() {
 	HASHMAP *map = hashmap_init();
-	hashmap_insert(map, "mykey", 27);
-	hashmap_insert(map, "mykey", 28);
-	hashmap_insert(map, "mykey", 20);
-	hashmap_insert(map, "mykey", 30);
-	hashmap_insert(map, "mykey", 1);
+	hashmap_insert_int(map, "mykey", 27);
+	hashmap_insert_int(map, "mykey", 28);
+	hashmap_insert_int(map, "mykey", 20);
+	hashmap_insert_int(map, "mykey", 30);
+	hashmap_insert_int(map, "mykey", 1);
 	int value;
-	int error = hashmap_get(map, "mykey", &value);
+	int error = hashmap_get_int(map, "mykey", &value);
 	assert(error == 0);
 	assert(value == 1);
 }
 
 void test_basic_remove() {
 	HASHMAP *map = hashmap_init();
-	hashmap_insert(map, "mykey", 27);
-	hashmap_insert(map, "yourkey", 28);
+	hashmap_insert_int(map, "mykey", 27);
+	hashmap_insert_int(map, "yourkey", 28);
 
 	hashmap_remove(map, "yourkey");
 
 	int value;
-	int error = hashmap_get(map, "mykey", &value);
+	int error = hashmap_get_int(map, "mykey", &value);
 	assert(error == 0);
 	assert(value == 27);
 
-	error = hashmap_get(map, "yourkey", &value);
+	error = hashmap_get_int(map, "yourkey", &value);
 	assert(error == 1);
 }
 

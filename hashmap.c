@@ -30,6 +30,8 @@ HASHMAP* hashmap_init_with_capacity(int capacity) {
 		(map->data + i)->active = false;
 		(map->data + i)->prev = -1;
 		(map->data + i)->next = -1;
+		(map->data + i)->key = NULL;
+		(map->data + i)->value = NULL;
 	}
 	return map;
 }
@@ -116,7 +118,7 @@ int hashmap_get_key_index(HASHMAP* map, char* key) {
 	return hashmap_find_key_index(map, index, key);
 }
 
-void hashmap_insert(HASHMAP* map, char* key, int value) {
+void hashmap_insert(HASHMAP* map, char* key, void* value) {
 
 	// Resize if necessary
 	if (map->current_size > 0 && map->capacity / map->current_size <= 2) {
@@ -128,8 +130,10 @@ void hashmap_insert(HASHMAP* map, char* key, int value) {
 
 	// It's a new key
 	if (!entry->active) {
+		// TODO: Free the old key and val
 		entry->key = strdup(key);
 		entry->value = value;
+
 		entry->active = true;
 		map->current_size++;
 		return;
@@ -143,6 +147,7 @@ void hashmap_insert(HASHMAP* map, char* key, int value) {
 
 	// Overwrite
 	if (strcmp(key, entry->key) == 0) {
+		// TODO: Free the old value
 		entry->value = value;
 		return;
 	}
@@ -156,6 +161,7 @@ void hashmap_insert(HASHMAP* map, char* key, int value) {
 
 	// Fill in data
 	H_ENTRY *new_entry = map->data + new_index;
+	// TODO: Free the old key and val
 	new_entry->key = strdup(key);
 	new_entry->value = value;
 	new_entry->active = true;
@@ -165,11 +171,26 @@ void hashmap_insert(HASHMAP* map, char* key, int value) {
 	new_entry->prev = index;
 }
 
-int hashmap_get(HASHMAP* map, char* key, int *dest) {
+void hashmap_insert_int(HASHMAP* map, char* key, int value) {
+	int* newval = malloc(sizeof(int));
+	*newval = value;
+	hashmap_insert(map, key, newval);
+}
+
+int hashmap_get_int(HASHMAP* map, char *key, int *dest) {
+	int *out = hashmap_get(map, key);
+	if (out == NULL) {
+		return 1;
+	}
+	*dest = *out;
+	return 0;
+}
+
+void* hashmap_get(HASHMAP* map, char *key) {
 	int index = map->hash(key, map->capacity);
 	H_ENTRY *entry = map->data + index;
 	if (!entry->active) {
-		return 1;
+		return NULL;
 	}
 
 	while (strcmp(key, entry->key) != 0 && entry->next != -1) {
@@ -177,11 +198,10 @@ int hashmap_get(HASHMAP* map, char* key, int *dest) {
 	}
 
 	if (strcmp(key, entry->key) == 0) {
-		*dest = entry->value;
-		return 0;
+		return entry->value;
 	}
 
-	return 1;
+	return NULL;
 }
 
 int hashmap_remove(HASHMAP* map, char* key) {
