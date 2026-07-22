@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include "include/list.h"
 
-
 LIST *run_program_and_get_output(char *test_file_name) {
 	LIST *output = LIST_INIT(char*, 64);
 
@@ -12,7 +11,8 @@ LIST *run_program_and_get_output(char *test_file_name) {
 	// sprintf(command, "clang -g -fsanitize=address -fsanitize=undefined ./unittest/%s.c ./hashmap.c -o ./unittest/%s 2>&1", test_file_name, test_file_name, test_file_name);
 	sprintf(command, "clang ./unittest/%s.c ./hashmap.c -o ./unittest/%s 2>&1", test_file_name, test_file_name);
 	system(command);
-	sprintf(command, "./unittest/%s", test_file_name);
+
+	sprintf(command, "./unittest/%s 2>&1", test_file_name);
 	FILE *file = popen(command, "r");
 	char *line = malloc(sizeof(char) * 256);
 	while (fgets(line, 256, file)) {
@@ -21,6 +21,7 @@ LIST *run_program_and_get_output(char *test_file_name) {
 	}
 	free(line);
 	pclose(file);
+
 	sprintf(command, "rm -f ./unittest/%s ./unittest/%s.o", test_file_name, test_file_name);
 	system(command);
 	return output;
@@ -36,6 +37,9 @@ bool run_test(char *file_name)
 	} else {
 		passed = false;
 		printf("FAILED\n");
+		for (int i = 0; i < output->size; i++) {
+			printf("%s\n", LIST_GET(output, char*, i));
+		}
 	}
 	printf("----------%s----------\n\n", file_name);
 	return passed;

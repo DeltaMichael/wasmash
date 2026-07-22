@@ -177,12 +177,27 @@ void hashmap_insert_int(HASHMAP* map, char* key, int value) {
 	hashmap_insert(map, key, newval);
 }
 
+void hashmap_insert_list(HASHMAP* map, char* key, LIST *value) {
+	LIST* newval = malloc(sizeof(LIST));
+	newval = value;
+	hashmap_insert(map, key, newval);
+}
+
 int hashmap_get_int(HASHMAP* map, char *key, int *dest) {
 	int *out = hashmap_get(map, key);
 	if (out == NULL) {
 		return 1;
 	}
 	*dest = *out;
+	return 0;
+}
+
+int hashmap_get_list(HASHMAP* map, char *key, LIST **dest) {
+	LIST *out = hashmap_get(map, key);
+	if (out == NULL) {
+		return 1;
+	}
+	*dest = out;
 	return 0;
 }
 

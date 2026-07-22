@@ -140,6 +140,21 @@ void test_basic_insert_get() {
 	assert(value == 1);
 }
 
+void test_basic_insert_get_list() {
+	HASHMAP *map = hashmap_init();
+	LIST* list = LIST_INIT(int, 25);
+	LIST_APPEND(list, int, 0);
+	LIST_APPEND(list, int, 1);
+	LIST_APPEND(list, int, 2);
+	LIST_APPEND(list, int, 3);
+	hashmap_insert_list(map, "mykey", list);
+	LIST* value;
+	int error = hashmap_get_list(map, "mykey", &value);
+	assert(error == 0);
+	int element = LIST_GET(value, int, 0);
+	assert(element == 0);
+}
+
 void test_basic_remove() {
 	HASHMAP *map = hashmap_init();
 	hashmap_insert_int(map, "mykey", 27);
@@ -158,6 +173,7 @@ void test_basic_remove() {
 
 int main(int argc, char** args) {
 	test_basic_insert_get();
+	test_basic_insert_get_list();
 	test_basic_remove();
 	test_collisions_insert_get();
 	test_collisions_remove_head();
