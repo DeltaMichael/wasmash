@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include "include/asm_lexer.h"
+#include "include/hashmap.h"
 #include "include/list.h"
 #include "include/instruction.h"
 
@@ -11,6 +12,27 @@ ASM_LEXER* asm_lexer_init(char* input) {
 	lexer->input = input;
 	lexer->instructions = LIST_INIT(INSTRUCTION*, 128);
 	lexer->jump_table = LIST_INIT(uint32_t, 128);
+	lexer->instr_arg = hashmap_init();
+	lexer->instr_no_arg = hashmap_init();
+
+	hashmap_insert_int(lexer->instr_arg, "push8", PUSH_8);
+	hashmap_insert_int(lexer->instr_arg, "ltop8", LTOP_8);
+	hashmap_insert_int(lexer->instr_arg, "ltop8abs", LTOP_8_ABS);
+	hashmap_insert_int(lexer->instr_arg, "lrel8", LREL_8);
+	hashmap_insert_int(lexer->instr_arg, "labs8", LABS_8);
+	hashmap_insert_int(lexer->instr_arg, "jz8", JZ_8);
+	hashmap_insert_int(lexer->instr_arg, "jnz8", JNZ_8);
+	hashmap_insert_int(lexer->instr_arg, "jmp8", JMP_8);
+
+	hashmap_insert_int(lexer->instr_no_arg, "add8", ADD_8);
+	hashmap_insert_int(lexer->instr_no_arg, "mul8", MUL_8);
+	hashmap_insert_int(lexer->instr_no_arg, "sub8", SUB_8);
+	hashmap_insert_int(lexer->instr_no_arg, "div8", DIV_8);
+	hashmap_insert_int(lexer->instr_no_arg, "pop8", POP_8);
+	hashmap_insert_int(lexer->instr_no_arg, "cmp8", CMP_8);
+	hashmap_insert_int(lexer->instr_no_arg, "print8", PRINT_8);
+	hashmap_insert_int(lexer->instr_no_arg, "nop", NOP);
+
 	return lexer;
 }
 
@@ -116,81 +138,29 @@ void asm_lexer_process(ASM_LEXER* lexer) {
 		if(instr == NULL) {
 			return; // TODO: Is there any other reason an instruction would be null, other than EOF?
 		}
-		if(strcmp("push8", instr) == 0) {
-			if(argument == NULL) {
-				// TODO: Error handling
-				printf("Instruction argument to push8 is null");
+
+		if(argument == NULL) {
+			int opcode;
+			int err = hashmap_get_int(lexer->instr_no_arg, instr, &opcode);
+			if (err == 1) {
+				printf("Instruction %s doesn't exist or requires an argument\n", instr);
 				exit(1);
 			}
-			uint8_t* data = malloc(sizeof(uint8_t));
-			*data = atoi(argument);
-			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(PUSH_8, data));
-		} else if (strcmp("ltop8", instr) == 0) {
-			if(argument == NULL) {
-				// TODO: Error handling
-				printf("Instruction argument to push8 is null");
-				exit(1);
-			}
-			uint8_t* data = malloc(sizeof(uint8_t));
-			*data = atoi(argument);
-			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(LTOP_8, data));
-		} else if (strcmp("jz8", instr) == 0) {
-			if(argument == NULL) {
-				// TODO: Error handling
-				printf("Instruction argument to push8 is null");
-				exit(1);
-			}
-			uint8_t* data = malloc(sizeof(uint8_t));
-			*data = atoi(argument);
-			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(JZ_8, data));
-		} else if (strcmp("jnz8", instr) == 0) {
-			if(argument == NULL) {
-				// TODO: Error handling
-				printf("Instruction argument to push8 is null");
-				exit(1);
-			}
-			uint8_t* data = malloc(sizeof(uint8_t));
-			*data = atoi(argument);
-			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(JNZ_8, data));
-		} else if (strcmp("jmp8", instr) == 0) {
-			if(argument == NULL) {
-				// TODO: Error handling
-				printf("Instruction argument to push8 is null");
-				exit(1);
-			}
-			uint8_t* data = malloc(sizeof(uint8_t));
-			*data = atoi(argument);
-			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(JMP_8, data));
-		} else if (strcmp("lrel8", instr) == 0) {
-			if(argument == NULL) {
-				// TODO: Error handling
-				printf("Instruction argument to push8 is null");
-				exit(1);
-			}
-			uint8_t* data = malloc(sizeof(uint8_t));
-			*data = atoi(argument);
-			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(LREL_8, data));
-		} else if (strcmp("add8", instr) == 0) {
-			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(ADD_8, NULL));
-		} else if (strcmp("sub8", instr) == 0) {
-			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(SUB_8, NULL));
-		} else if (strcmp("div8", instr) == 0) {
-			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(DIV_8, NULL));
-		} else if (strcmp("mul8", instr) == 0) {
-			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(MUL_8, NULL));
-		} else if (strcmp("pop8", instr) == 0) {
-			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(POP_8, NULL));
-		} else if (strcmp("print8", instr) == 0) {
-			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(PRINT_8, NULL));
-		} else if (strcmp("cmp8", instr) == 0) {
-			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(CMP_8, NULL));
-		} else if (strcmp("nop", instr) == 0) {
-			LIST_APPEND(lexer->instructions, INSTRUCTION*, instruction_create(NOP, NULL));
+			INSTRUCTION* instr = instruction_create(opcode, NULL);
+			LIST_APPEND(lexer->instructions, INSTRUCTION*, instr);
 		} else {
-			// TODO: Proper error handling
-			printf("Unknown instruction %s\n", instr);
-			exit(1);
+			int opcode;
+			int err = hashmap_get_int(lexer->instr_arg, instr, &opcode);
+			if (err == 1) {
+				printf("Instruction %s doesn't exist\n", instr);
+				exit(1);
+			}
+			uint8_t* data = malloc(sizeof(uint8_t));
+			*data = atoi(argument);
+			INSTRUCTION* instr = instruction_create(opcode, data);
+			LIST_APPEND(lexer->instructions, INSTRUCTION*, instr);
 		}
+
 		LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
 		lexer->line_count += 1;
 		if(instr != NULL) {

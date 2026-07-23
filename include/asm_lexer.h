@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "list.h"
+#include "hashmap.h"
 
 typedef struct {
 	char* input;
@@ -11,6 +12,8 @@ typedef struct {
 	uint32_t line_count;
 	LIST* instructions;
 	LIST* jump_table;
+	HASHMAP* instr_no_arg;
+	HASHMAP* instr_arg;
 } ASM_LEXER;
 
 ASM_LEXER* asm_lexer_init(char* input);
