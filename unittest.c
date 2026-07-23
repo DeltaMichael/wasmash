@@ -9,7 +9,7 @@ LIST *run_program_and_get_output(char *test_file_name) {
 
 	char command[256];
 	// sprintf(command, "clang -g -fsanitize=address -fsanitize=undefined ./unittest/%s.c ./hashmap.c -o ./unittest/%s 2>&1", test_file_name, test_file_name, test_file_name);
-	sprintf(command, "clang ./unittest/%s.c ./hashmap.c -o ./unittest/%s 2>&1", test_file_name, test_file_name);
+	sprintf(command, "clang ./unittest/%s.c ./hashmap.c ./asm_lexer.c ./instruction.c -o ./unittest/%s 2>&1", test_file_name, test_file_name);
 	system(command);
 
 	sprintf(command, "./unittest/%s 2>&1", test_file_name);

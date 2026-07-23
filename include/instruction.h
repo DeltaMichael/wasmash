@@ -28,6 +28,7 @@ typedef struct {
 } INSTRUCTION;
 
 INSTRUCTION* instruction_create(OPCODE code, uint8_t* data);
+INSTRUCTION* instruction_create_with_value(OPCODE code, uint8_t data);
 
 #endif
 
