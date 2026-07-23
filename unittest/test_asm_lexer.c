@@ -6,7 +6,6 @@
 void test_parse_instructions() {
 	char* input = "push8 1;\r\npush8 2;\r\nadd8;\r\nprint8;\r\n";
 	ASM_LEXER* lexer = asm_lexer_init(input);
-
 	INSTRUCTION* expected[4] = { instruction_create_with_value(PUSH_8, 1),
 		instruction_create_with_value(PUSH_8, 2),
 		instruction_create(ADD_8, NULL),
@@ -18,7 +17,11 @@ void test_parse_instructions() {
 	for(int i = 0; i < lexer->instructions->size; i++) {
 		INSTRUCTION* instruction = LIST_GET(lexer->instructions, INSTRUCTION*, i);
 		assert(instruction->opcode == expected[i]->opcode);
-		assert(*instruction->data == *expected[i]->data);
+		if (expected[i]->data == NULL) {
+			assert(instruction->data == NULL);
+		} else {
+			assert(*instruction->data == *expected[i]->data);
+		}
 	}
 }
 

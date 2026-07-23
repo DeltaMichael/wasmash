@@ -8,13 +8,11 @@
 ASM_LEXER* asm_lexer_init(char* input) {
 	ASM_LEXER* lexer = malloc(sizeof(ASM_LEXER));
 	lexer->current = 0;
-	lexer->line_count = 0;
-	lexer->input = input;
+	lexer->line_count = 0; lexer->input = input;
 	lexer->instructions = LIST_INIT(INSTRUCTION*, 128);
 	lexer->jump_table = LIST_INIT(uint32_t, 128);
 	lexer->instr_arg = hashmap_init();
 	lexer->instr_no_arg = hashmap_init();
-
 	hashmap_insert_int(lexer->instr_arg, "push8", PUSH_8);
 	hashmap_insert_int(lexer->instr_arg, "ltop8", LTOP_8);
 	hashmap_insert_int(lexer->instr_arg, "ltop8abs", LTOP_8_ABS);
@@ -85,7 +83,7 @@ bool asm_lexer_at_end(ASM_LEXER* lexer) {
 }
 
 void asm_lexer_skip_whitespace(ASM_LEXER* lexer) {
-	while(is_whitespace(asm_lexer_current(lexer))) {
+	while(!asm_lexer_at_end(lexer) && is_whitespace(asm_lexer_current(lexer))) {
 		asm_lexer_advance(lexer);
 		if(is_newline(asm_lexer_current(lexer))) {
 			LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
@@ -115,28 +113,45 @@ char* asm_lexer_number(ASM_LEXER* lexer) {
 	return strndup(lexer->input + start, lexer->current - start);
 }
 
+void asm_lexer_eat(ASM_LEXER* lexer, char eaten) {
+	if(asm_lexer_current(lexer) == eaten) {
+		asm_lexer_advance(lexer);
+		return;
+	}
+	printf("Expected: '%c' got '%c'\n", eaten, asm_lexer_current(lexer));
+	exit(1);
+}
+
 void asm_lexer_process(ASM_LEXER* lexer) {
 	while(!asm_lexer_at_end(lexer)) {
 		asm_lexer_skip_whitespace(lexer);
 		char* instr = NULL;
 		char* argument = NULL;
-		while(!asm_lexer_at_end(lexer) && !is_lineterm(asm_lexer_current(lexer))) {
-			if(is_alpha(asm_lexer_current(lexer))) {
-				instr = asm_lexer_instruction(lexer);
-			} else if(is_num(asm_lexer_current(lexer))) {
+		if (is_alnum(asm_lexer_current(lexer))) {
+			// parse instruction
+			int value;
+			instr = asm_lexer_instruction(lexer);
+			asm_lexer_skip_whitespace(lexer);
+			// parse arguments if any
+			if(hashmap_get_int(lexer->instr_arg, instr, &value) == 0) {
 				argument = asm_lexer_number(lexer);
-			} else if(is_whitespace(asm_lexer_current(lexer))) {
-				asm_lexer_advance(lexer);
-			} else if(is_forward_slash(asm_lexer_current(lexer))) {
-				if(is_forward_slash(asm_lexer_peek(lexer))) {
-					LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
-					asm_lexer_skip_line(lexer);
+				if(argument == NULL) {
+					printf("Expected argument for instruction %s\n", instr);
+					exit(1);
 				}
 			}
+			asm_lexer_skip_whitespace(lexer);
+			// eat the line term
+			asm_lexer_eat(lexer, ';');
+		} else if (is_forward_slash(asm_lexer_current(lexer)) && is_forward_slash(asm_lexer_peek(lexer))) {
+			// it's a comment
+			// just skip it and update the jump table
+           	LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
+			asm_lexer_skip_line(lexer);
 		}
-		asm_lexer_advance(lexer); // skip the lineterm
-		if(instr == NULL) {
-			return; // TODO: Is there any other reason an instruction would be null, other than EOF?
+
+		if(instr == NULL) { // Comment or empty line, go back to the start
+			continue;
 		}
 
 		if(argument == NULL) {
