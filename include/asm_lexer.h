@@ -6,6 +6,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define LINE_TERM ';'
+#define LABEL_TERM ':'
+
 typedef struct {
   char *input;
   uint32_t current;

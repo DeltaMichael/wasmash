@@ -15,12 +15,13 @@ typedef struct {
 #define LIST_INIT(type, cap)                                                   \
   ({                                                                           \
     LIST *list = malloc(sizeof(LIST));                                         \
-    list->capacity = cap;                                                      \
-    list->pointer = -1;                                                        \
-    list->size = 0;                                                            \
-    list->data = (type *)malloc(cap * sizeof(type));                           \
+    (list->capacity) = (cap);                                                  \
+    (list->pointer) = -1;                                                      \
+    (list->size) = 0;                                                          \
+    (list->data) = (type *)malloc(cap * sizeof(type));                         \
     list;                                                                      \
   })
+
 #define LIST_APPEND(list, type, value)                                         \
   ({                                                                           \
     type temp = (value);                                                       \
@@ -28,8 +29,8 @@ typedef struct {
       type *new_data =                                                         \
           (type *)realloc(list->data, sizeof(type) * list->capacity * 2);      \
       if (new_data != NULL) {                                                  \
-        list->data = new_data;                                                 \
-        list->capacity = list->capacity * 2;                                   \
+        (list->data) = new_data;                                               \
+        (list->capacity) = list->capacity * 2;                                 \
       } else {                                                                 \
         printf("Could not realloc list data on appending\n");                  \
         exit(1);                                                               \
@@ -44,11 +45,11 @@ typedef struct {
 // TODO: Handle errors gracefully
 #define LIST_GET(list, type, index)                                            \
   ({                                                                           \
-    if ((index) > list->pointer || (index) < 0) {                              \
+    if ((index) > (list->pointer) || (index) < 0) {                            \
       printf("List access outside of range");                                  \
       exit(1);                                                                 \
     }                                                                          \
-    type *data = (type *)list->data;                                           \
+    type *data = (type *)(list->data);                                         \
     data[(index)];                                                             \
   })
 

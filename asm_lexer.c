@@ -131,7 +131,7 @@ void asm_lexer_process(ASM_LEXER *lexer) {
       }
       asm_lexer_skip_whitespace(lexer);
       // eat the line term
-      asm_lexer_eat(lexer, ';');
+      asm_lexer_eat(lexer, LINE_TERM);
     } else if (is_forward_slash(asm_lexer_current(lexer)) &&
                is_forward_slash(asm_lexer_peek(lexer))) {
       // it's a comment

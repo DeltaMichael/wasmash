@@ -37,7 +37,6 @@ int hashmap_get_int(HASHMAP *map, char *key, int *dest);
 void hashmap_insert_int(HASHMAP *map, char *key, int value);
 
 // List
-
 int hashmap_get_list(HASHMAP *map, char *key, LIST **dest);
 void hashmap_insert_list(HASHMAP *map, char *key, LIST *value);
 
