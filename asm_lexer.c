@@ -14,6 +14,7 @@ ASM_LEXER *asm_lexer_init(char *input) {
   lexer->jump_table = LIST_INIT(uint32_t, 128);
   lexer->instr_arg = hashmap_init();
   lexer->instr_no_arg = hashmap_init();
+
   hashmap_insert_int(lexer->instr_arg, "push8", PUSH_8);
   hashmap_insert_int(lexer->instr_arg, "ltop8", LTOP_8);
   hashmap_insert_int(lexer->instr_arg, "ltop8abs", LTOP_8_ABS);
@@ -111,6 +112,22 @@ void asm_lexer_eat(ASM_LEXER *lexer, char eaten) {
   exit(1);
 }
 
+void asm_lexer_no_arg_instr(ASM_LEXER *lexer, char* instruction, char* argument) {
+  int opcode;
+  int err = hashmap_get_int(lexer->instr_no_arg, instruction, &opcode);
+  INSTRUCTION *instr = instruction_create(opcode, NULL);
+  LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
+}
+
+void asm_lexer_one_arg_instr(ASM_LEXER *lexer, char* instruction, char* argument) {
+  int opcode;
+  int err = hashmap_get_int(lexer->instr_arg, instruction, &opcode);
+  uint8_t *data = malloc(sizeof(uint8_t));
+  *data = atoi(argument);
+  INSTRUCTION *instr = instruction_create(opcode, data);
+  LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
+}
+
 void asm_lexer_process(ASM_LEXER *lexer) {
   while (!asm_lexer_at_end(lexer)) {
     asm_lexer_skip_whitespace(lexer);
@@ -130,8 +147,16 @@ void asm_lexer_process(ASM_LEXER *lexer) {
         }
       }
       asm_lexer_skip_whitespace(lexer);
-      // eat the line term
-      asm_lexer_eat(lexer, LINE_TERM);
+	  if(asm_lexer_current(lexer) == LABEL_TERM) {
+      	asm_lexer_eat(lexer, LABEL_TERM);
+		// TODO: map the label to a line
+		instr = NULL;
+      	LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
+      	asm_lexer_skip_line(lexer);
+	  } else {
+      	// eat the line term
+      	asm_lexer_eat(lexer, LINE_TERM);
+	  }
     } else if (is_forward_slash(asm_lexer_current(lexer)) &&
                is_forward_slash(asm_lexer_peek(lexer))) {
       // it's a comment
@@ -178,3 +203,4 @@ void asm_lexer_process(ASM_LEXER *lexer) {
     }
   }
 }
+
