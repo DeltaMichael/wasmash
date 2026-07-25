@@ -37,7 +37,7 @@ bool asm_lexer_at_end(ASM_LEXER *lexer);
 void asm_lexer_skip_whitespace(ASM_LEXER *lexer);
 char *asm_lexer_instruction(ASM_LEXER *lexer);
 char *asm_lexer_number(ASM_LEXER *lexer);
-void asm_lexer_process_instr(ASM_LEXER* lexer, char* instr, char* argument);
+void asm_lexer_process_instr(ASM_LEXER* lexer, char** instr, char** argument);
 void asm_lexer_process(ASM_LEXER *lexer);
 void asm_lexer_no_arg_instr(ASM_LEXER *lexer, char* instruction, char* argument);
 void asm_lexer_one_arg_instr(ASM_LEXER *lexer, char* instruction, char* argument);

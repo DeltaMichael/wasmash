@@ -146,18 +146,18 @@ void asm_lexer_one_arg_instr(ASM_LEXER *lexer, char* instruction, char* argument
   LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
 }
 
-void asm_lexer_process_instr(ASM_LEXER* lexer, char* instr, char* argument) {
+void asm_lexer_process_instr(ASM_LEXER* lexer, char** instr, char** argument) {
     asm_lexer_skip_whitespace(lexer);
     if (is_alnum(asm_lexer_current(lexer))) {
       // parse instruction
       int value;
-      instr = asm_lexer_instruction(lexer);
+      *instr = asm_lexer_instruction(lexer);
       asm_lexer_skip_whitespace(lexer);
       // parse arguments if any
-      if (hashmap_get_int(lexer->instr_arg, instr, &value) == 0) {
-        argument = asm_lexer_number(lexer);
+      if (hashmap_get_int(lexer->instr_arg, *instr, &value) == 0) {
+        *argument = asm_lexer_number(lexer);
         if (argument == NULL) {
-          printf("Expected argument for instruction %s\n", instr);
+          printf("Expected argument for instruction %s\n", *instr);
           exit(1);
         }
       }
@@ -186,44 +186,14 @@ void asm_lexer_process(ASM_LEXER *lexer) {
   while (!asm_lexer_at_end(lexer)) {
     char *instr = NULL;
     char *argument = NULL;
-    asm_lexer_skip_whitespace(lexer);
-    if (is_alnum(asm_lexer_current(lexer))) {
-      // parse instruction
-      int value;
-      instr = asm_lexer_instruction(lexer);
-      asm_lexer_skip_whitespace(lexer);
-      // parse arguments if any
-      if (hashmap_get_int(lexer->instr_arg, instr, &value) == 0) {
-        argument = asm_lexer_number(lexer);
-        if (argument == NULL) {
-          printf("Expected argument for instruction %s\n", instr);
-          exit(1);
-        }
-      }
-      asm_lexer_skip_whitespace(lexer);
-	  if(asm_lexer_current(lexer) == LABEL_TERM) {
-      	asm_lexer_eat(lexer, LABEL_TERM);
-		// TODO: map the label to a line
-		instr = NULL;
-      	LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
-      	asm_lexer_skip_line(lexer);
-	  } else {
-      	// eat the line term
-      	asm_lexer_eat(lexer, LINE_TERM);
-	  }
-    } else if (is_forward_slash(asm_lexer_current(lexer)) &&
-               is_forward_slash(asm_lexer_peek(lexer))) {
-      // it's a comment
-      // just skip it and update the jump table
-      LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
-      asm_lexer_skip_line(lexer);
-    }
+	asm_lexer_process_instr(lexer, &instr, &argument);
 
-    if (instr == NULL) { // Comment or empty line, go back to the start
+	// Check for comment or empty line
+    if (instr == NULL) {
       continue;
     }
 
-	// Get the dispatch function
+	// Get the dispatch function for the instruction
 	INSTR_PROC proc = dget_instr_proc(lexer->dispatcher, instr);
 	if (proc == NULL) {
 		printf("Instruction %s doesn't exist", instr);
