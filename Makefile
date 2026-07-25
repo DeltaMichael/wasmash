@@ -1,20 +1,20 @@
 # CC=emcc
 # CFLAGS=-std=gnu99 -sEXPORTED_FUNCTIONS=_main -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,callMain,HEAPU8 -sMODULARIZE=1 -sEXPORT_NAME=Foo -sENVIRONMENT=web -sASYNCIFY=0 -sINVOKE_RUN=0
 
-CC=gcc
-CFLAGS=-g -Wextra -Wall -Wundef -Wswitch-default -Wswitch-enum
+CC=clang
+CFLAGS=-g -fsanitize=address -fsanitize=undefined -Wextra -Wall -Wundef -Wswitch-default -Wswitch-enum
 
 IDIR=include
 ODIR=obj
 ARTEFACT=index
 
-_DEPS=stack.h instruction.h list.h hashmap.h asm_lexer.h machine.h
+_DEPS=stack.h instruction.h list.h hashmap.h asm_lexer.h machine.h char_helper.h
 DEPS=$(patsubst %,$(IDIR)/%,$(_DEPS))
 
 _TEST_DEPS=list.h
 TEST_DEPS=$(patsubst %,$(IDIR)/%,$(_TEST_DEPS))
 
-_OBJ=main.o stack.o instruction.o list.o hashmap.o asm_lexer.o machine.o
+_OBJ=main.o stack.o instruction.o list.o hashmap.o asm_lexer.o machine.o char_helper.o
 OBJ=$(patsubst %,$(ODIR)/%,$(_OBJ))
 
 _TEST_OBJ=test.o list.o
