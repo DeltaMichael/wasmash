@@ -54,4 +54,3 @@ typedef struct {
   })
 
 #endif
-

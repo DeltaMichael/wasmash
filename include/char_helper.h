@@ -12,4 +12,3 @@ bool is_newline(char symbol);
 bool is_forward_slash(char symbol);
 
 #endif
-

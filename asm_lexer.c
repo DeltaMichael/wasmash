@@ -1,25 +1,26 @@
 #include <string.h>
 
 #include "include/asm_lexer.h"
+#include "include/char_helper.h"
 #include "include/hashmap.h"
 #include "include/instruction.h"
 #include "include/list.h"
-#include "include/char_helper.h"
 
 DISPATCH *dinit() {
-	DISPATCH *dispatcher = malloc(sizeof(DISPATCH));
-	dispatcher->functions = hashmap_init();
-	return dispatcher;
+  DISPATCH *dispatcher = malloc(sizeof(DISPATCH));
+  dispatcher->functions = hashmap_init();
+  return dispatcher;
 }
 
-void dinsert_instr_proc(DISPATCH* dispatcher, char* key, INSTR_PROC instr_proc) {
-  	INSTR_PROC newval = malloc(sizeof(instr_proc));
-  	newval = instr_proc;
-	hashmap_insert(dispatcher->functions, key, newval);
+void dinsert_instr_proc(DISPATCH *dispatcher, char *key,
+                        INSTR_PROC instr_proc) {
+  INSTR_PROC newval = malloc(sizeof(instr_proc));
+  newval = instr_proc;
+  hashmap_insert(dispatcher->functions, key, newval);
 }
 
-INSTR_PROC dget_instr_proc(DISPATCH* dispatcher, char* key) {
-	return (INSTR_PROC)hashmap_get(dispatcher->functions, key);
+INSTR_PROC dget_instr_proc(DISPATCH *dispatcher, char *key) {
+  return (INSTR_PROC)hashmap_get(dispatcher->functions, key);
 }
 
 ASM_LEXER *asm_lexer_init(char *input) {
@@ -132,14 +133,16 @@ void asm_lexer_eat(ASM_LEXER *lexer, char eaten) {
   exit(1);
 }
 
-void asm_lexer_no_arg_instr(ASM_LEXER *lexer, char* instruction, char* argument) {
+void asm_lexer_no_arg_instr(ASM_LEXER *lexer, char *instruction,
+                            char *argument) {
   int opcode;
   hashmap_get_int(lexer->instr_no_arg, instruction, &opcode);
   INSTRUCTION *instr = instruction_create(opcode, NULL);
   LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
 }
 
-void asm_lexer_one_arg_instr(ASM_LEXER *lexer, char* instruction, char* argument) {
+void asm_lexer_one_arg_instr(ASM_LEXER *lexer, char *instruction,
+                             char *argument) {
   int opcode;
   hashmap_get_int(lexer->instr_arg, instruction, &opcode);
   uint8_t *data = malloc(sizeof(uint8_t));
@@ -148,90 +151,118 @@ void asm_lexer_one_arg_instr(ASM_LEXER *lexer, char* instruction, char* argument
   LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
 }
 
-void asm_lexer_jump_instr(ASM_LEXER *lexer, char* instruction, char* argument) {
+void asm_lexer_jump_instr(ASM_LEXER *lexer, char *instruction, char *argument) {
   int opcode;
   hashmap_get_int(lexer->instr_arg, instruction, &opcode);
   uint8_t *data = malloc(sizeof(uint8_t));
-  char* endptr;
+  char *endptr;
   *data = strtol(argument, &endptr, 10);
   if (*endptr != '\0') { // it's a label
-	int line;
-	int err = hashmap_get_int(lexer->labels, argument, &line);
-	if (err == 0) { // we've seen it before
-		*data = (uint8_t)line;
-	} else { // save for interpolation
-		LIST* interpolations;
-		int err = hashmap_get_list(lexer->labels_interpolation, argument, &interpolations);
-		if (err != 0) { // list does not exist, initialize
-			interpolations = LIST_INIT(INSTRUCTION*, 16);
-			hashmap_insert_list(lexer->labels_interpolation, argument, interpolations);
-		}
-  		INSTRUCTION *instr = instruction_create(opcode, data);
-		LIST_APPEND(interpolations, INSTRUCTION*, instr);
-  		LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
-		return;
-	}
+    int line;
+    int err = hashmap_get_int(lexer->labels, argument, &line);
+    if (err == 0) { // we've seen it before
+      *data = (uint8_t)line;
+    } else { // save for interpolation
+      LIST *interpolations;
+      int err = hashmap_get_list(lexer->labels_interpolation, argument,
+                                 &interpolations);
+      if (err != 0) { // list does not exist, initialize
+        interpolations = LIST_INIT(INSTRUCTION *, 16);
+        hashmap_insert_list(lexer->labels_interpolation, argument,
+                            interpolations);
+      }
+      INSTRUCTION *instr = instruction_create(opcode, data);
+      LIST_APPEND(interpolations, INSTRUCTION *, instr);
+      LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
+      return;
+    }
   }
   INSTRUCTION *instr = instruction_create(opcode, data);
   LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
 }
 
-void asm_lexer_process_instr(ASM_LEXER* lexer, char** instr, char** argument) {
+void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char **argument) {
+  asm_lexer_skip_whitespace(lexer);
+  if (is_alnum(asm_lexer_current(lexer))) {
+    // parse instruction
+    int value;
+    *instr = asm_lexer_instruction(lexer);
     asm_lexer_skip_whitespace(lexer);
-    if (is_alnum(asm_lexer_current(lexer))) {
-      // parse instruction
-      int value;
-      *instr = asm_lexer_instruction(lexer);
-      asm_lexer_skip_whitespace(lexer);
-      // parse arguments if any
-      if (hashmap_get_int(lexer->instr_arg, *instr, &value) == 0) {
-        *argument = asm_lexer_number(lexer);
-        if (*argument == NULL) {
-          printf("Expected argument for instruction %s\n", *instr);
-          exit(1);
-        }
+    // parse arguments if any
+    if (hashmap_get_int(lexer->instr_arg, *instr, &value) == 0) {
+      *argument = asm_lexer_number(lexer);
+      if (*argument == NULL) {
+        printf("Expected argument for instruction %s\n", *instr);
+        exit(1);
       }
-      asm_lexer_skip_whitespace(lexer);
+    }
+    asm_lexer_skip_whitespace(lexer);
 
-	  if(asm_lexer_current(lexer) == LABEL_TERM) {
-		hashmap_insert_int(lexer->labels, *instr, lexer->jump_table->size + 1);
+    if (asm_lexer_current(lexer) == LABEL_TERM) {
+      hashmap_insert_int(lexer->labels, *instr, lexer->jump_table->size + 1);
 
-		*instr = NULL;
-      	asm_lexer_eat(lexer, LABEL_TERM);
-      	LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
-      	asm_lexer_skip_line(lexer);
-	  } else {
-      	// eat the line term
-      	asm_lexer_eat(lexer, LINE_TERM);
-	  }
-    } else if (is_forward_slash(asm_lexer_current(lexer)) &&
-               is_forward_slash(asm_lexer_peek(lexer))) {
-      // it's a comment
-      // just skip it and update the jump table
+      *instr = NULL;
+      asm_lexer_eat(lexer, LABEL_TERM);
       LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
       asm_lexer_skip_line(lexer);
+    } else {
+      // eat the line term
+      asm_lexer_eat(lexer, LINE_TERM);
     }
+  } else if (is_forward_slash(asm_lexer_current(lexer)) &&
+             is_forward_slash(asm_lexer_peek(lexer))) {
+    // it's a comment
+    // just skip it and update the jump table
+    LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
+    asm_lexer_skip_line(lexer);
+  }
+}
 
+void asm_lexer_interpolate_labels(ASM_LEXER *lexer) {
+  for (int i = 0; i < lexer->labels_interpolation->capacity; i++) {
+    H_ENTRY *entry = lexer->labels_interpolation->data + i;
+    if (entry->active) {
+      LIST *interpolations;
+      int err = hashmap_get_list(lexer->labels_interpolation, entry->key,
+                                 &interpolations);
+      if (err) {
+        // TODO: error handling
+        printf("No interpolations for label %s\n", entry->key);
+        continue;
+      }
+      for (int j = 0; j < interpolations->size; j++) {
+        INSTRUCTION *instr = LIST_GET(interpolations, INSTRUCTION *, j);
+        int line_number;
+        int err = hashmap_get_int(lexer->labels, entry->key, &line_number);
+        if (err) {
+          // TODO: error handling
+          printf("Label %s does not exist\n", entry->key);
+          continue;
+        }
+        *instr->data = (uint8_t)line_number;
+      }
+    }
+  }
 }
 
 void asm_lexer_process(ASM_LEXER *lexer) {
   while (!asm_lexer_at_end(lexer)) {
     char *instr = NULL;
     char *argument = NULL;
-	asm_lexer_process_instr(lexer, &instr, &argument);
+    asm_lexer_process_instr(lexer, &instr, &argument);
 
-	// Check for comment or empty line
+    // Check for comment or empty line
     if (instr == NULL) {
       continue;
     }
 
-	// Get the dispatch function for the instruction
-	INSTR_PROC proc = dget_instr_proc(lexer->dispatcher, instr);
-	if (proc == NULL) {
-		printf("Instruction %s doesn't exist", instr);
-		exit(1);
-	}
-	proc(lexer, instr, argument);
+    // Get the dispatch function for the instruction
+    INSTR_PROC proc = dget_instr_proc(lexer->dispatcher, instr);
+    if (proc == NULL) {
+      printf("Instruction %s doesn't exist", instr);
+      exit(1);
+    }
+    proc(lexer, instr, argument);
 
     LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
     lexer->line_count += 1;
@@ -244,30 +275,5 @@ void asm_lexer_process(ASM_LEXER *lexer) {
       argument = NULL;
     }
   }
-
-  // Interpolate labels into instructions
-  for(int i = 0; i < lexer->labels_interpolation->capacity; i++) {
-    H_ENTRY *entry = lexer->labels_interpolation->data + i;
-	if(entry->active) {
-		LIST* interpolations;
-		int err = hashmap_get_list(lexer->labels_interpolation, entry->key, &interpolations);
-		if (err) {
-			// TODO: error handling
-			printf("No interpolations for label %s\n", entry->key);
-			continue;
-		}
-		for (int j = 0; j < interpolations->size; j++) {
-			INSTRUCTION* instr = LIST_GET(interpolations, INSTRUCTION*, j);
-			int line_number;
-			int err = hashmap_get_int(lexer->labels, entry->key, &line_number);
-			if (err) {
-				// TODO: error handling
-				printf("Label %s does not exist\n", entry->key);
-				continue;
-			}
-			*instr->data = (uint8_t) line_number;
-		}
-	}
-  }
+  asm_lexer_interpolate_labels(lexer);
 }
-
