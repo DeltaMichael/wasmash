@@ -1,0 +1,22 @@
+// 0A
+// 09
+// 08
+// 07
+// 06
+// 05
+// 04
+// 03
+// 02
+// 01
+// 00
+push8 0;
+push8 10;
+loop:
+	cmp8;
+	jnz8 end;
+	print8;
+	push8 1;
+	sub8;
+	jmp8 loop;
+end:
+	print8;

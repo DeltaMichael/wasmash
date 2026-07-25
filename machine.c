@@ -107,7 +107,7 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
   case JNZ_8:
     if (machine->cmp_result == 1) {
       if (instr->data == NULL) {
-        printf("JMP instruction should have data");
+        printf("JNZ_8 instruction should have data");
         exit(1);
       }
       uint32_t position =
@@ -148,3 +148,4 @@ uint8_t machine_exec_program(MACHINE *machine) {
   }
   return 0;
 }
+
