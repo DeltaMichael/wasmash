@@ -10,6 +10,11 @@
 #define LABEL_TERM ':'
 
 typedef struct {
+	int line;
+	char* message;
+} LEXER_ERROR;
+
+typedef struct {
   HASHMAP *functions;
 } DISPATCH;
 
@@ -17,6 +22,7 @@ typedef struct {
   char *input;
   uint32_t current;
   uint32_t line_count;
+  LIST *errors;
   LIST *instructions;
   LIST *jump_table;
   HASHMAP *instr_no_arg;
@@ -50,3 +56,4 @@ void asm_lexer_one_arg_instr(ASM_LEXER *lexer, char *instruction,
 void asm_lexer_jump_instr(ASM_LEXER *lexer, char *instruction, char *argument);
 
 #endif
+

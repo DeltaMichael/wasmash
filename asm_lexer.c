@@ -28,6 +28,7 @@ ASM_LEXER *asm_lexer_init(char *input) {
   lexer->current = 0;
   lexer->line_count = 0;
   lexer->input = input;
+  lexer->errors = LIST_INIT(LEXER_ERROR *, 128);
   lexer->instructions = LIST_INIT(INSTRUCTION *, 128);
   lexer->jump_table = LIST_INIT(uint32_t, 128);
   lexer->instr_arg = hashmap_init();
@@ -251,7 +252,7 @@ void asm_lexer_process(ASM_LEXER *lexer) {
     char *argument = NULL;
     asm_lexer_process_instr(lexer, &instr, &argument);
 
-    // Check for comment or empty line
+    // Comment, empty line or label
     if (instr == NULL) {
       continue;
     }
@@ -264,6 +265,7 @@ void asm_lexer_process(ASM_LEXER *lexer) {
     }
     proc(lexer, instr, argument);
 
+	// Update the jump table, increment the line
     LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
     lexer->line_count += 1;
     if (instr != NULL) {
@@ -277,3 +279,4 @@ void asm_lexer_process(ASM_LEXER *lexer) {
   }
   asm_lexer_interpolate_labels(lexer);
 }
+
