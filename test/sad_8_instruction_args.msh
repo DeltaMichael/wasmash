@@ -1,0 +1,6 @@
+// ERR L3: Expected argument for instruction push8
+// ERR L5: Instruction add8 does not require an argument
+push8;
+push8 10;
+add8 24;
+print8;

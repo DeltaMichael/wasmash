@@ -122,6 +122,9 @@ char *asm_lexer_number(ASM_LEXER *lexer) {
   while (!asm_lexer_at_end(lexer) && is_alnum(asm_lexer_current(lexer))) {
     asm_lexer_advance(lexer);
   }
+  if (start == lexer->current) {
+    return NULL;
+  }
   return strndup(lexer->input + start, lexer->current - start);
 }
 
@@ -132,6 +135,12 @@ void asm_lexer_eat(ASM_LEXER *lexer, char eaten) {
   }
   printf("Expected: '%c' got '%c'\n", eaten, asm_lexer_current(lexer));
   exit(1);
+}
+
+void asm_lexer_skip_to_terminator(ASM_LEXER* lexer) {
+  while (!asm_lexer_at_end(lexer) && !(is_lineterm(asm_lexer_current(lexer)) || is_newline(asm_lexer_current(lexer)))) {
+    asm_lexer_advance(lexer);
+  }
 }
 
 void asm_lexer_no_arg_instr(ASM_LEXER *lexer, char *instruction,
@@ -190,13 +199,29 @@ void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char **argument) {
     *instr = asm_lexer_instruction(lexer);
     asm_lexer_skip_whitespace(lexer);
     // parse arguments if any
+    *argument = asm_lexer_number(lexer);
     if (hashmap_get_int(lexer->instr_arg, *instr, &value) == 0) {
-      *argument = asm_lexer_number(lexer);
       if (*argument == NULL) {
-        printf("Expected argument for instruction %s\n", *instr);
-        exit(1);
+        LEXER_ERROR *err = malloc(sizeof(LEXER_ERROR));
+        err->line = lexer->jump_table->size + 1;
+		int length = snprintf(NULL, 0, "Expected argument for instruction %s\n", *instr);
+        err->message = malloc(sizeof(char) * (length + 1));
+		snprintf(err->message, length + 1, "Expected argument for instruction %s\n", *instr);
+        LIST_APPEND(lexer->errors, LEXER_ERROR*, err);
+        asm_lexer_skip_to_terminator(lexer);
       }
+    } else if (hashmap_get_int(lexer->instr_no_arg, *instr, &value) == 0) {
+		if (*argument != NULL) {
+        	LEXER_ERROR *err = malloc(sizeof(LEXER_ERROR));
+        	err->line = lexer->jump_table->size + 1;
+			int length = snprintf(NULL, 0, "Instruction %s does not require an argument\n", *instr);
+        	err->message = malloc(sizeof(char) * (length + 1));
+			snprintf(err->message, length + 1, "Instruction %s does not require an argument\n", *instr);
+        	LIST_APPEND(lexer->errors, LEXER_ERROR*, err);
+        	asm_lexer_skip_to_terminator(lexer);
+		}
     }
+
     asm_lexer_skip_whitespace(lexer);
 
     if (asm_lexer_current(lexer) == LABEL_TERM) {
@@ -258,12 +283,14 @@ void asm_lexer_process(ASM_LEXER *lexer) {
     }
 
     // Get the dispatch function for the instruction
+  if (lexer->errors->size == 0) {
     INSTR_PROC proc = dget_instr_proc(lexer->dispatcher, instr);
     if (proc == NULL) {
       printf("Instruction %s doesn't exist", instr);
       exit(1);
     }
     proc(lexer, instr, argument);
+  }
 
 	// Update the jump table, increment the line
     LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);

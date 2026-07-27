@@ -75,6 +75,9 @@ bool assert_output(LIST *expected, LIST *actual) {
   }
 
   bool passed = true;
+  if (expected->size != actual->size) {
+    passed = false;
+  }
 
   for (int i = 0; i < expected->size; i++) {
     char *expected_line = LIST_GET(expected, char *, i);
@@ -119,6 +122,5 @@ int main(int argc, char **argv) {
   }
   pclose(file);
   printf("Passed %d/%d\n", success_count, total_count);
-  // run_test("sad_unexpected_token.msh");
   return 0;
 }

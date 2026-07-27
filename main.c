@@ -41,6 +41,13 @@ int main(int argc, char **argv) {
     ASM_LEXER *lexer = asm_lexer_init(raw_input);
     asm_lexer_process(lexer);
     program = lexer->instructions;
+	if (lexer->errors->size > 0) {
+		for (int i = 0; i < lexer->errors->size; i++) {
+			LEXER_ERROR* error = LIST_GET(lexer->errors, LEXER_ERROR*, i);
+			printf("ERR L%d: %s", error->line, error->message);
+		}
+		exit(1);
+	}
     jump_table = lexer->jump_table;
   } else {
 #ifdef __EMSCRIPTEN__
@@ -65,3 +72,4 @@ int main(int argc, char **argv) {
 #endif
   return 0;
 }
+
