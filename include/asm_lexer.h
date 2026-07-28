@@ -48,6 +48,7 @@ char *asm_lexer_number(ASM_LEXER *lexer);
 void asm_lexer_interpolate_labels(ASM_LEXER *lexer);
 void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char **argument);
 void asm_lexer_process(ASM_LEXER *lexer);
+void asm_lexer_skip_to_terminator(ASM_LEXER* lexer);
 
 void asm_lexer_no_arg_instr(ASM_LEXER *lexer, char *instruction,
                             char *argument);

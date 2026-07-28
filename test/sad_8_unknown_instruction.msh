@@ -1,0 +1,7 @@
+// ERR L3: Expected argument for instruction push8
+// ERR L5: Unknown instruction 'glurp8'
+push8;
+push8 4;
+glurp8 9;
+mul8;
+print8;

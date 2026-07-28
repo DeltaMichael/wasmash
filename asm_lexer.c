@@ -91,7 +91,7 @@ char asm_lexer_peek(ASM_LEXER *lexer) {
 }
 
 bool asm_lexer_at_end(ASM_LEXER *lexer) {
-  return lexer->input[lexer->current] == 0;
+  return lexer->input[lexer->current] == '\0';
 }
 
 void asm_lexer_skip_whitespace(ASM_LEXER *lexer) {
@@ -133,13 +133,27 @@ void asm_lexer_eat(ASM_LEXER *lexer, char eaten) {
     asm_lexer_advance(lexer);
     return;
   }
-  printf("Expected: '%c' got '%c'\n", eaten, asm_lexer_current(lexer));
-  exit(1);
+
+  LEXER_ERROR *err = malloc(sizeof(LEXER_ERROR));
+  err->line = lexer->jump_table->size + 1;
+  int length = snprintf(NULL, 0, "Expected %c but got '%c'\n", eaten, asm_lexer_current(lexer));
+  err->message = malloc(sizeof(char) * (length + 1));
+  snprintf(err->message, length + 1, "Expected %c but got '%c'\n", eaten, asm_lexer_current(lexer));
+  LIST_APPEND(lexer->errors, LEXER_ERROR*, err);
+
+  asm_lexer_skip_to_terminator(lexer);
 }
 
 void asm_lexer_skip_to_terminator(ASM_LEXER* lexer) {
-  while (!asm_lexer_at_end(lexer) && !(is_lineterm(asm_lexer_current(lexer)) || is_newline(asm_lexer_current(lexer)))) {
+  while (!asm_lexer_at_end(lexer)) {
     asm_lexer_advance(lexer);
+	if (is_lineterm(asm_lexer_current(lexer))) {
+    	asm_lexer_advance(lexer);
+		return;
+	}
+	if (is_newline(asm_lexer_current(lexer))) {
+		return;
+	}
   }
 }
 
@@ -208,7 +222,6 @@ void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char **argument) {
         err->message = malloc(sizeof(char) * (length + 1));
 		snprintf(err->message, length + 1, "Expected argument for instruction %s\n", *instr);
         LIST_APPEND(lexer->errors, LEXER_ERROR*, err);
-        asm_lexer_skip_to_terminator(lexer);
       }
     } else if (hashmap_get_int(lexer->instr_no_arg, *instr, &value) == 0) {
 		if (*argument != NULL) {
@@ -217,8 +230,8 @@ void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char **argument) {
 			int length = snprintf(NULL, 0, "Instruction %s does not require an argument\n", *instr);
         	err->message = malloc(sizeof(char) * (length + 1));
 			snprintf(err->message, length + 1, "Instruction %s does not require an argument\n", *instr);
+
         	LIST_APPEND(lexer->errors, LEXER_ERROR*, err);
-        	asm_lexer_skip_to_terminator(lexer);
 		}
     }
 
@@ -241,6 +254,17 @@ void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char **argument) {
     // just skip it and update the jump table
     LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
     asm_lexer_skip_line(lexer);
+  } else if(asm_lexer_at_end(lexer)) {
+    return;
+  } else {
+    LEXER_ERROR *err = malloc(sizeof(LEXER_ERROR));
+    err->line = lexer->jump_table->size + 1;
+	int length = snprintf(NULL, 0, "Unexpected character %c\n", asm_lexer_current(lexer));
+    err->message = malloc(sizeof(char) * (length + 1));
+	snprintf(err->message, length + 1, "Unexpected character %c\n", asm_lexer_current(lexer));
+    LIST_APPEND(lexer->errors, LEXER_ERROR*, err);
+
+    asm_lexer_skip_to_terminator(lexer);
   }
 }
 
