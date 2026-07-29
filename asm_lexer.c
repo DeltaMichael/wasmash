@@ -306,15 +306,19 @@ void asm_lexer_process(ASM_LEXER *lexer) {
       continue;
     }
 
-    // Get the dispatch function for the instruction
-  if (lexer->errors->size == 0) {
-    INSTR_PROC proc = dget_instr_proc(lexer->dispatcher, instr);
-    if (proc == NULL) {
-      printf("Instruction %s doesn't exist", instr);
-      exit(1);
-    }
-    proc(lexer, instr, argument);
-  }
+  	// Get the dispatch function for the instruction
+  	INSTR_PROC proc = dget_instr_proc(lexer->dispatcher, instr);
+  	if (proc == NULL) {
+      LEXER_ERROR *err = malloc(sizeof(LEXER_ERROR));
+      err->line = lexer->jump_table->size + 1;
+	  int length = snprintf(NULL, 0, "Unknown instruction: '%s'\n", instr);
+      err->message = malloc(sizeof(char) * (length + 1));
+	  snprintf(err->message, length + 1, "Unknown instruction '%s'\n", instr);
+      LIST_APPEND(lexer->errors, LEXER_ERROR*, err);
+  	}
+  	if (lexer->errors->size == 0) {
+  	  proc(lexer, instr, argument);
+  	}
 
 	// Update the jump table, increment the line
     LIST_APPEND(lexer->jump_table, uint32_t, lexer->line_count);
