@@ -6,6 +6,8 @@
 #include "include/instruction.h"
 #include "include/list.h"
 
+
+
 DISPATCH *dinit() {
   DISPATCH *dispatcher = malloc(sizeof(DISPATCH));
   dispatcher->functions = hashmap_init();
@@ -134,13 +136,7 @@ void asm_lexer_eat(ASM_LEXER *lexer, char eaten) {
     return;
   }
 
-  LEXER_ERROR *err = malloc(sizeof(LEXER_ERROR));
-  err->line = lexer->jump_table->size + 1;
-  int length = snprintf(NULL, 0, "Expected %c but got '%c'\n", eaten, asm_lexer_current(lexer));
-  err->message = malloc(sizeof(char) * (length + 1));
-  snprintf(err->message, length + 1, "Expected %c but got '%c'\n", eaten, asm_lexer_current(lexer));
-  LIST_APPEND(lexer->errors, LEXER_ERROR*, err);
-
+  asm_lexer_report_error(lexer, "Expected %c but got '%c'\n", eaten, asm_lexer_current(lexer));
   asm_lexer_skip_to_terminator(lexer);
 }
 
@@ -155,6 +151,20 @@ void asm_lexer_skip_to_terminator(ASM_LEXER* lexer) {
 		return;
 	}
   }
+}
+
+void asm_lexer_report_error(ASM_LEXER *lexer, const char *fmt, ...) {
+	va_list args1, args2;
+	va_start(args1, fmt);
+	va_copy(args2, args1);
+  	LEXER_ERROR *err = malloc(sizeof(LEXER_ERROR));
+  	err->line = lexer->jump_table->size + 1;
+  	int length = vsnprintf(NULL, 0, fmt, args1);
+  	err->message = malloc(sizeof(char) * (length + 1));
+  	vsnprintf(err->message, length + 1, fmt, args2);
+  	LIST_APPEND(lexer->errors, LEXER_ERROR*, err);
+	va_end(args1);
+	va_end(args2);
 }
 
 void asm_lexer_no_arg_instr(ASM_LEXER *lexer, char *instruction,
@@ -216,22 +226,11 @@ void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char **argument) {
     *argument = asm_lexer_number(lexer);
     if (hashmap_get_int(lexer->instr_arg, *instr, &value) == 0) {
       if (*argument == NULL) {
-        LEXER_ERROR *err = malloc(sizeof(LEXER_ERROR));
-        err->line = lexer->jump_table->size + 1;
-		int length = snprintf(NULL, 0, "Expected argument for instruction %s\n", *instr);
-        err->message = malloc(sizeof(char) * (length + 1));
-		snprintf(err->message, length + 1, "Expected argument for instruction %s\n", *instr);
-        LIST_APPEND(lexer->errors, LEXER_ERROR*, err);
+		asm_lexer_report_error(lexer, "Expected argument for instruction %s\n", *instr);
       }
     } else if (hashmap_get_int(lexer->instr_no_arg, *instr, &value) == 0) {
 		if (*argument != NULL) {
-        	LEXER_ERROR *err = malloc(sizeof(LEXER_ERROR));
-        	err->line = lexer->jump_table->size + 1;
-			int length = snprintf(NULL, 0, "Instruction %s does not require an argument\n", *instr);
-        	err->message = malloc(sizeof(char) * (length + 1));
-			snprintf(err->message, length + 1, "Instruction %s does not require an argument\n", *instr);
-
-        	LIST_APPEND(lexer->errors, LEXER_ERROR*, err);
+			asm_lexer_report_error(lexer, "Instruction %s does not require an argument\n", *instr);
 		}
     }
 
@@ -257,13 +256,7 @@ void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char **argument) {
   } else if(asm_lexer_at_end(lexer)) {
     return;
   } else {
-    LEXER_ERROR *err = malloc(sizeof(LEXER_ERROR));
-    err->line = lexer->jump_table->size + 1;
-	int length = snprintf(NULL, 0, "Unexpected character %c\n", asm_lexer_current(lexer));
-    err->message = malloc(sizeof(char) * (length + 1));
-	snprintf(err->message, length + 1, "Unexpected character %c\n", asm_lexer_current(lexer));
-    LIST_APPEND(lexer->errors, LEXER_ERROR*, err);
-
+	asm_lexer_report_error(lexer, "Unexpected character %c\n", asm_lexer_current(lexer));
     asm_lexer_skip_to_terminator(lexer);
   }
 }
@@ -309,12 +302,7 @@ void asm_lexer_process(ASM_LEXER *lexer) {
   	// Get the dispatch function for the instruction
   	INSTR_PROC proc = dget_instr_proc(lexer->dispatcher, instr);
   	if (proc == NULL) {
-      LEXER_ERROR *err = malloc(sizeof(LEXER_ERROR));
-      err->line = lexer->jump_table->size + 1;
-	  int length = snprintf(NULL, 0, "Unknown instruction: '%s'\n", instr);
-      err->message = malloc(sizeof(char) * (length + 1));
-	  snprintf(err->message, length + 1, "Unknown instruction '%s'\n", instr);
-      LIST_APPEND(lexer->errors, LEXER_ERROR*, err);
+	  asm_lexer_report_error(lexer, "Unknown instruction '%s'\n", instr);
   	}
   	if (lexer->errors->size == 0) {
   	  proc(lexer, instr, argument);
