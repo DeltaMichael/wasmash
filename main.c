@@ -31,11 +31,13 @@ char *read_file(char *path) {
 int main(int argc, char **argv) {
   LIST *program = NULL;
   LIST *jump_table = NULL;
+  uint32_t start;
   if (argc >= 3 && strcmp(argv[1], "-i") == 0) {
     // TODO: Fix it, does not currently work
     ASM_LEXER *lexer = asm_lexer_init(argv[2]);
     asm_lexer_process(lexer);
     program = lexer->instructions;
+	start = asm_lexer_get_start_line(lexer);
   } else if (argc == 3 && strcmp(argv[1], "-f") == 0) {
     char *raw_input = read_file(argv[2]);
     ASM_LEXER *lexer = asm_lexer_init(raw_input);
@@ -49,6 +51,7 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
     jump_table = lexer->jump_table;
+	start = asm_lexer_get_start_line(lexer);
   } else {
 #ifdef __EMSCRIPTEN__
     // TODO: Figure this out
@@ -63,6 +66,11 @@ int main(int argc, char **argv) {
   MACHINE *machine = machine_init();
   machine_set_instructions(machine, program);
   machine_set_jump_table(machine, jump_table);
+
+  uint32_t start_position =
+      LIST_GET(machine->jump_table, uint32_t, start);
+  machine->program_counter = start_position;
+
   machine_exec_program(machine);
 
 #ifdef __EMSCRIPTEN__

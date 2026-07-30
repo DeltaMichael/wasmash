@@ -88,7 +88,6 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
       printf("JMP instruction should have data");
       exit(1);
     }
-    machine->program_counter = instr->data[0] - 2;
     uint32_t position =
         LIST_GET(machine->jump_table, uint32_t, instr->data[0] - 1);
     machine->program_counter = position - 1;
@@ -148,3 +147,4 @@ uint8_t machine_exec_program(MACHINE *machine) {
   }
   return 0;
 }
+

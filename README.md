@@ -11,21 +11,24 @@
 
 ### VM
 
-- relative addressing
-- branching
-- labels?
-- registers?
-- function calls
+- registers
+- function calls, requires a start vector
 - return values
+- 16, 32, 64-bit instructions, stack alignment
 - heap
 - garbage collection
-- multi-threading
+- relative addressing - DONE
+- branching - DONE
+- labels? - DONE
 
 ### Testing
 
-- create testing framework
-- test using basic programs
+- create testing framework - DONE
+- test using basic programs - DONE
 
 ### Advanced
 
+- PRAT parser for a higher level language
+- binary format
 - turing-completeness - e.g. GOL, brainfuck compiler
+- multi-threading

@@ -6,8 +6,6 @@
 #include "include/instruction.h"
 #include "include/list.h"
 
-
-
 DISPATCH *dinit() {
   DISPATCH *dispatcher = malloc(sizeof(DISPATCH));
   dispatcher->functions = hashmap_init();
@@ -286,6 +284,15 @@ void asm_lexer_interpolate_labels(ASM_LEXER *lexer) {
       }
     }
   }
+}
+
+int asm_lexer_get_start_line(ASM_LEXER *lexer) {
+	int line_number;
+    int err = hashmap_get_int(lexer->labels, "start", &line_number);
+	if (err == 0) {
+		return line_number;
+	}
+	return 0;
 }
 
 void asm_lexer_process(ASM_LEXER *lexer) {
