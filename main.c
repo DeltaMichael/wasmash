@@ -37,21 +37,21 @@ int main(int argc, char **argv) {
     ASM_LEXER *lexer = asm_lexer_init(argv[2]);
     asm_lexer_process(lexer);
     program = lexer->instructions;
-	start = asm_lexer_get_start_line(lexer);
+    start = asm_lexer_get_start_line(lexer);
   } else if (argc == 3 && strcmp(argv[1], "-f") == 0) {
     char *raw_input = read_file(argv[2]);
     ASM_LEXER *lexer = asm_lexer_init(raw_input);
     asm_lexer_process(lexer);
     program = lexer->instructions;
-	if (lexer->errors->size > 0) {
-		for (int i = 0; i < lexer->errors->size; i++) {
-			LEXER_ERROR* error = LIST_GET(lexer->errors, LEXER_ERROR*, i);
-			printf("ERR L%d: %s", error->line, error->message);
-		}
-		exit(1);
-	}
+    if (lexer->errors->size > 0) {
+      for (int i = 0; i < lexer->errors->size; i++) {
+        LEXER_ERROR *error = LIST_GET(lexer->errors, LEXER_ERROR *, i);
+        printf("ERR L%d: %s", error->line, error->message);
+      }
+      exit(1);
+    }
     jump_table = lexer->jump_table;
-	start = asm_lexer_get_start_line(lexer);
+    start = asm_lexer_get_start_line(lexer);
   } else {
 #ifdef __EMSCRIPTEN__
     // TODO: Figure this out
@@ -67,8 +67,7 @@ int main(int argc, char **argv) {
   machine_set_instructions(machine, program);
   machine_set_jump_table(machine, jump_table);
 
-  uint32_t start_position =
-      LIST_GET(machine->jump_table, uint32_t, start);
+  uint32_t start_position = LIST_GET(machine->jump_table, uint32_t, start);
   machine->program_counter = start_position;
 
   machine_exec_program(machine);
@@ -80,4 +79,3 @@ int main(int argc, char **argv) {
 #endif
   return 0;
 }
-

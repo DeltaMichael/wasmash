@@ -3,16 +3,16 @@
 
 #include "hashmap.h"
 #include "list.h"
+#include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdarg.h>
 
 #define LINE_TERM ';'
 #define LABEL_TERM ':'
 
 typedef struct {
-	int line;
-	char* message;
+  int line;
+  char *message;
 } LEXER_ERROR;
 
 typedef struct {
@@ -49,8 +49,9 @@ char *asm_lexer_number(ASM_LEXER *lexer);
 void asm_lexer_interpolate_labels(ASM_LEXER *lexer);
 void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char **argument);
 void asm_lexer_process(ASM_LEXER *lexer);
-void asm_lexer_skip_to_terminator(ASM_LEXER* lexer);
-void asm_lexer_report_error(ASM_LEXER *lexer, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
+void asm_lexer_skip_to_terminator(ASM_LEXER *lexer);
+void asm_lexer_report_error(ASM_LEXER *lexer, const char *fmt, ...)
+    __attribute__((format(printf, 2, 3)));
 int asm_lexer_get_start_line(ASM_LEXER *lexer);
 
 void asm_lexer_no_arg_instr(ASM_LEXER *lexer, char *instruction,
@@ -60,4 +61,3 @@ void asm_lexer_one_arg_instr(ASM_LEXER *lexer, char *instruction,
 void asm_lexer_jump_instr(ASM_LEXER *lexer, char *instruction, char *argument);
 
 #endif
-

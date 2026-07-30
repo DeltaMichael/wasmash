@@ -12,7 +12,8 @@ LIST *run_program_and_get_output(char *test_file_name) {
   // ./unittest/%s.c ./hashmap.c -o ./unittest/%s 2>&1", test_file_name,
   // test_file_name, test_file_name);
   sprintf(command,
-          "clang ./unittest/%s.c ./hashmap.c ./asm_lexer.c ./instruction.c ./char_helper.c -o "
+          "clang ./unittest/%s.c ./hashmap.c ./asm_lexer.c ./instruction.c "
+          "./char_helper.c -o "
           "./unittest/%s 2>&1",
           test_file_name, test_file_name);
   system(command);
@@ -66,4 +67,3 @@ int main(int argc, char **args) {
   // run_test("sad_unexpected_token.msh");
   return 0;
 }
-
