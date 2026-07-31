@@ -22,6 +22,8 @@ typedef enum {
   CMP_8,      // compare two values
   JZ_8,       // jump if comparison result is zero
   JNZ_8,      // jump if comparison result is non-zero
+  CALL_8,     // call a function at label
+  RET_8,	  // return the value on top of the stack
   NOP,        // no-op
 } OPCODE;
 
@@ -34,3 +36,4 @@ INSTRUCTION *instruction_create(OPCODE code, uint8_t *data);
 INSTRUCTION *instruction_create_with_value(OPCODE code, uint8_t data);
 
 #endif
+

@@ -1,0 +1,7 @@
+test:
+  print8;
+  ret8;
+
+start:
+  push8 9;
+  call test;
