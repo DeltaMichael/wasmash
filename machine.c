@@ -130,8 +130,8 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
     break;
   case CALL_8: {
 	// save the sp and top se we can reset the stack when we return
-	push_byte(machine->stack, machine->stack->sp);
-        push_byte(machine->stack, machine->stack->top - 1);
+        push_byte(machine->stack, machine->stack->top);
+		push_byte(machine->stack, machine->stack->sp);
         push_byte(machine->stack, machine->program_counter);
 
         // push the top 8 stack frames to be used as arguments
@@ -151,8 +151,8 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
 	break;
   }
   case RET_8: {
-    int64_t old_sp = machine->stack->data[machine->stack->sp - 3];
-    int64_t old_top = machine->stack->data[machine->stack->sp - 2];
+    int64_t old_top = machine->stack->data[machine->stack->sp - 3];
+    int64_t old_sp = machine->stack->data[machine->stack->sp - 2];
     int64_t old_pc = machine->stack->data[machine->stack->sp - 1];
     uint8_t ret_value = pop_byte(machine->stack);
     machine->stack->sp = old_sp;
