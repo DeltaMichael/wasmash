@@ -34,7 +34,7 @@ void push_4b(STACK *stack, uint32_t val) {
 }
 
 uint8_t pop_byte(STACK *stack) {
-  if (stack->top < 0) {
+  if (stack->top < stack->sp) {
     // TODO: Do we need an error code?
     return 0;
   }

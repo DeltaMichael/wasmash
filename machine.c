@@ -131,19 +131,19 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
   case CALL_8: {
 	// save the sp and top se we can reset the stack when we return
 	push_byte(machine->stack, machine->stack->sp);
-	push_byte(machine->stack, machine->stack->top);
+        push_byte(machine->stack, machine->stack->top - 1);
+        push_byte(machine->stack, machine->program_counter);
 
-	// push the top 8 stack frames to be used as arguments
-	uint8_t old_sp = machine->stack->sp;
-	uint8_t old_top = machine->stack->top;
-	for (int i = 0; i < 8 && old_top - i >= 0; i++) {
+        // push the top 8 stack frames to be used as arguments
+        int64_t old_sp = machine->stack->sp;
+        int64_t old_top = machine->stack->top;
+        machine->stack->sp = old_top + 1;
+        machine->stack->top = machine->stack->sp - 1;
+        for (int i = 0; i < 8 && old_top - i >= 0; i++) {
 		push_byte(machine->stack, machine->stack->data[old_top - i]);
 	}
 
-	machine->stack->sp = old_top + 1;
-	machine->stack->top = old_sp - 1;
-
-	// jump to position
+        // jump to position
     uint32_t position =
         LIST_GET(machine->jump_table, uint32_t, instr->data[0] - 1);
     machine->program_counter = position - 1;
@@ -151,12 +151,14 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
 	break;
   }
   case RET_8: {
-	uint8_t old_sp = machine->stack->data[machine->stack->sp];
-	uint8_t old_top = machine->stack->data[machine->stack->sp + 1];
-	uint8_t ret_value = pop_byte(machine->stack);
-	machine->stack->sp = old_sp;
-	machine->stack->top = old_top;
-	push_byte(machine->stack, ret_value);
+    int64_t old_sp = machine->stack->data[machine->stack->sp - 3];
+    int64_t old_top = machine->stack->data[machine->stack->sp - 2];
+    int64_t old_pc = machine->stack->data[machine->stack->sp - 1];
+    uint8_t ret_value = pop_byte(machine->stack);
+    machine->stack->sp = old_sp;
+    machine->stack->top = old_top;
+    machine->program_counter = old_pc;
+    push_byte(machine->stack, ret_value);
   }
   case NOP:
     break;
