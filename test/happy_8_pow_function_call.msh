@@ -1,25 +1,23 @@
 // 80
 pow:
-	push8 0; // reserve a byte for the result
-	push8 0;
-	ltop8 1; // load the power
-	powloop:
-		cmp8;
-		jnz8 powend;
-		// multiply by self
-		ltop8 0;
-		ltop8 0;
+	push8 1; // result
+	push8 0; // counter
+	ltop8 1; // limit
+	loop:
+		cmp8; // compare the counter and the limit, jump to end if zero
+		jnz8 end;
+		ltop8 0; // load the base
+		ltop8 2; // load the result
 		mul8;
-		lrel8 2; // save it in the result
-		// end multiply by self
+		lrel8 2;
 		push8 1;
 		sub8;
-		jmp8 powloop;
-	powend:
-		ret8; // return the top of the stack
-
+		jmp8 loop;
+	end:
+		ltop8 2; // push the result to top
+		ret8;
 start:
+	push8 7;
 	push8 2;
-	push8 6;
 	call pow;
 	print8;

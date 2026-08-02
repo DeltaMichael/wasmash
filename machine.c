@@ -74,7 +74,7 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
       printf("Push instruction should have data");
       exit(1);
     }
-    if (machine->stack->top < 0) {
+    if (machine->stack->top < machine->stack->sp) {
       // TODO: Decide if we can address garbage or not
     }
     first = pop_byte(machine->stack);
@@ -130,18 +130,18 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
     break;
   case CALL_8: {
 	// save the sp and top se we can reset the stack when we return
+        int64_t old_sp = machine->stack->sp;
+        int64_t old_top = machine->stack->top;
         push_byte(machine->stack, machine->stack->top);
 		push_byte(machine->stack, machine->stack->sp);
         push_byte(machine->stack, machine->program_counter);
 
         // push the top 8 stack frames to be used as arguments
-        int64_t old_sp = machine->stack->sp;
-        int64_t old_top = machine->stack->top;
-        machine->stack->sp = old_top + 1;
+        machine->stack->sp = machine->stack->top + 1;
         machine->stack->top = machine->stack->sp - 1;
         for (int i = 0; i < 8 && old_top - i >= 0; i++) {
-		push_byte(machine->stack, machine->stack->data[old_top - i]);
-	}
+			push_byte(machine->stack, machine->stack->data[old_top - i]);
+		}
 
         // jump to position
     uint32_t position =
