@@ -139,8 +139,13 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
         // push the top 8 stack frames to be used as arguments
         machine->stack->sp = machine->stack->top + 1;
         machine->stack->top = machine->stack->sp - 1;
-        for (int i = 0; i < 8 && old_top - i >= 0; i++) {
-			push_byte(machine->stack, machine->stack->data[old_top - i]);
+		int first = old_sp;
+		int last = old_top;
+		if (last - first > 8) {
+			first = last - 8;
+		}
+        for (int i = old_sp; i <= old_top; i++) {
+			push_byte(machine->stack, machine->stack->data[i]);
 		}
 
         // jump to position

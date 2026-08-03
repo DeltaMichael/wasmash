@@ -17,7 +17,7 @@ pow:
 		ltop8 2; // push the result to top
 		ret8;
 start:
-	push8 7;
 	push8 2;
+	push8 7;
 	call pow;
 	print8;
