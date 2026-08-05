@@ -69,9 +69,15 @@ uint8_t get_byte(STACK *stack, int64_t index) {
   return out;
 }
 
-void print_stack(int length, uint8_t *data) {
+void print_stack(int length, STACK* stack) {
   for (int i = 0; i < length; i++) {
-    printf("%02X ", data[i]);
+	if(stack->sp == i) {
+		printf("[");
+	}
+    printf("%02X ", stack->data[i]);
+	if (stack->top == i) {
+		printf("]");
+	}
     if ((i + 1) % 8 == 0 || i == length - 1) {
       printf("\n");
     }
@@ -83,3 +89,4 @@ void decrement_top(STACK *stack) {
     stack->top--;
   }
 }
+

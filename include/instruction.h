@@ -27,12 +27,13 @@ typedef enum {
 } OPCODE;
 
 typedef struct {
+  char* name;
   OPCODE opcode;
   uint8_t *data;
 } INSTRUCTION;
 
-INSTRUCTION *instruction_create(OPCODE code, uint8_t *data);
-INSTRUCTION *instruction_create_with_value(OPCODE code, uint8_t data);
+INSTRUCTION *instruction_create(const char* name, OPCODE code, uint8_t *data);
+INSTRUCTION *instruction_create_with_value(const char* name, OPCODE code, uint8_t data);
 
 #endif
 

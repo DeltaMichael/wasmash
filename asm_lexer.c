@@ -174,7 +174,7 @@ void asm_lexer_no_arg_instr(ASM_LEXER *lexer, char *instruction,
                             char *argument) {
   int opcode;
   hashmap_get_int(lexer->instr_no_arg, instruction, &opcode);
-  INSTRUCTION *instr = instruction_create(opcode, NULL);
+  INSTRUCTION *instr = instruction_create(instruction, opcode, NULL);
   LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
 }
 
@@ -184,7 +184,7 @@ void asm_lexer_one_arg_instr(ASM_LEXER *lexer, char *instruction,
   hashmap_get_int(lexer->instr_arg, instruction, &opcode);
   uint8_t *data = malloc(sizeof(uint8_t));
   *data = atoi(argument);
-  INSTRUCTION *instr = instruction_create(opcode, data);
+  INSTRUCTION *instr = instruction_create(instruction, opcode, data);
   LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
 }
 
@@ -208,13 +208,13 @@ void asm_lexer_jump_instr(ASM_LEXER *lexer, char *instruction, char *argument) {
         hashmap_insert_list(lexer->labels_interpolation, argument,
                             interpolations);
       }
-      INSTRUCTION *instr = instruction_create(opcode, data);
+      INSTRUCTION *instr = instruction_create(instruction, opcode, data);
       LIST_APPEND(interpolations, INSTRUCTION *, instr);
       LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
       return;
     }
   }
-  INSTRUCTION *instr = instruction_create(opcode, data);
+  INSTRUCTION *instr = instruction_create(instruction, opcode, data);
   LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
 }
 
@@ -337,3 +337,4 @@ void asm_lexer_process(ASM_LEXER *lexer) {
   }
   asm_lexer_interpolate_labels(lexer);
 }
+

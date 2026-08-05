@@ -21,7 +21,8 @@ uint8_t pop_byte(STACK *stack);
 uint8_t get_byte(STACK *stack, int64_t index);
 uint16_t pop_2b(STACK *stack);
 uint32_t pop_4b(STACK *stack);
-void print_stack(int length, uint8_t *data);
+void print_stack(int length, STACK *stack);
 void decrement_top(STACK *stack);
 
 #endif
+

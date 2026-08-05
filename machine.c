@@ -175,11 +175,27 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
   return 0;
 }
 
+uint8_t machine_exec_program_debug(MACHINE *machine) {
+  while (machine->program_counter < machine->instructions->size &&
+         machine->program_counter >= 0) {
+  	INSTRUCTION *instr =
+      	LIST_GET(machine->instructions, INSTRUCTION *, machine->program_counter);
+    machine_exec_next_instruction(machine);
+	if (instr->data == NULL) {
+      printf("----------(%s)------------\n", instr->name);
+	} else {
+      printf("---------(%s %d)----------\n", instr->name, instr->data[0]);
+	}
+    print_stack(64, machine->stack);
+    machine->program_counter++;
+  }
+  return 0;
+}
+
 uint8_t machine_exec_program(MACHINE *machine) {
   while (machine->program_counter < machine->instructions->size &&
          machine->program_counter >= 0) {
     machine_exec_next_instruction(machine);
-    // print_stack(21, machine->stack->data);
     machine->program_counter++;
   }
   return 0;
