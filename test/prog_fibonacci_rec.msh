@@ -1,0 +1,29 @@
+fib:
+  push8 0;
+  cmp8;
+  pop8;
+  jnz8 base;
+  push8 1;
+  cmp8;
+  pop8;
+  jnz8 base;
+  jmp8 com;
+  base:
+    push8 1;
+    ret8;
+  com:
+    prt8 0; // duplicate argument
+    push8 1;
+    sub8;
+    call fib;
+    prt8 2; // duplicate argument
+    push8 2;
+    sub8;
+    call fib;
+	add8;
+	ret8;
+
+start:
+  push8 6;
+  call fib;
+  print8;

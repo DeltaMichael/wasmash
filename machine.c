@@ -58,11 +58,27 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
       printf("Push instruction should have data");
       exit(1);
     }
-    if (machine->stack->top < 0) {
-      // TODO: Decide if we can address garbage or not
+    if (machine->stack->sp + instr->data[0] > machine->stack->top) {
+	  printf("Trying to address data out of range at address %d\n", (int) machine->stack->sp + instr->data[0]);
+	  exit(1);
     }
     first =
         machine->stack->data[machine->stack->sp +
+                             instr->data[0]]; // TODO: Pull the whole offset,
+                                              // not just the first 8 bytes
+    push_byte(machine->stack, first);
+    break;
+  case PRT_8:
+    if (instr->data == NULL) {
+      printf("Push instruction should have data");
+      exit(1);
+    }
+    if (machine->stack->top - instr->data[0] < machine->stack->sp) {
+		printf("Trying to address data out of range at address %d\n", (int) machine->stack->top - instr->data[0]);
+		exit(1);
+    }
+    first =
+        machine->stack->data[machine->stack->top -
                              instr->data[0]]; // TODO: Pull the whole offset,
                                               // not just the first 8 bytes
     push_byte(machine->stack, first);
@@ -129,7 +145,7 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
     push_byte(machine->stack, first);
     break;
   case CALL_8: {
-	// save the sp and top se we can reset the stack when we return
+		// save the sp, top and program counter so we can reset the stack when we return
         int64_t old_sp = machine->stack->sp;
         int64_t old_top = machine->stack->top;
         push_byte(machine->stack, machine->stack->top);
