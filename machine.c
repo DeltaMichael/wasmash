@@ -53,7 +53,7 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
     second = pop_byte(machine->stack);
     push_byte(machine->stack, second / first);
     break;
-  case LTOP_8:
+  case PRSP_8:
     if (instr->data == NULL) {
       printf("Push instruction should have data");
       exit(1);
@@ -67,9 +67,9 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
                                               // not just the first 8 bytes
     push_byte(machine->stack, first);
     break;
-  case LTOP_8_ABS:
+  case PABS_8:
     break;
-  case LREL_8:
+  case LRSP_8:
     if (instr->data == NULL) {
       printf("Push instruction should have data");
       exit(1);

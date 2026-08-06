@@ -2,19 +2,19 @@
 pow:
 	push8 1; // result
 	push8 0; // counter
-	ltop8 1; // limit
+	prsp8 1; // limit
 	loop:
 		cmp8; // compare the counter and the limit, jump to end if zero
 		jnz8 end;
-		ltop8 0; // load the base
-		ltop8 2; // load the result
+		prsp8 0; // load the base
+		prsp8 2; // load the result
 		mul8;
 		lrel8 2;
 		push8 1;
 		sub8;
 		jmp8 loop;
 	end:
-		ltop8 2; // push the result to top
+		prsp8 2; // push the result to top
 		ret8;
 start:
 	push8 2;

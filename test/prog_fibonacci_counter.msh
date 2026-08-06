@@ -16,11 +16,11 @@ print8;
 push8 1;
 print8;
 push8 11; // counter = 11 because we print the first two
-ltop8 0;
-ltop8 1;
+prsp8 0;
+prsp8 1;
 add8;
 print8;
-ltop8 1;
+prsp8 1;
 lrel8 0;
 lrel8 1;
 push8 1; // counter decrement = 1

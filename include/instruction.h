@@ -12,9 +12,9 @@ typedef enum {
   POP_8,
   PRINT_8, // TODO: There should be a way to implement this with syscall, cause
            // it's faster
-  LTOP_8,  // push the value at an address specified by an offset to the stack pointer on top of the stack
-  LTOP_8_ABS, // push the value at an absolute address on top of the stack
-  LREL_8,     // load data on top of the stack to address relative to the stack
+  PRSP_8,  // push the value at an address specified by an offset to the stack pointer on top of the stack
+  PABS_8, // push the value at an absolute address on top of the stack
+  LRSP_8,     // load data on top of the stack to address relative to the stack
               // pointer
   LABS_8,     // load data on top of the stack to absolute address
   JMP_8,      // jump to line

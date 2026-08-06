@@ -3,7 +3,7 @@ push8 0;
 push8 10;
 cmp8;
 jnz8 9;
-ltop8 0;
+prsp8 0;
 print8;
 jmp8 10;
 print8;

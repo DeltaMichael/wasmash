@@ -15,7 +15,8 @@ STACK *stack_init() {
 
 void push_byte(STACK *stack, uint8_t val) {
   if (stack->top + 1 >= stack->cap) {
-    // realloc, unless overflow
+    printf("Stack overflow\n");
+	exit(1);
   }
   stack->data[stack->top + 1] = val;
   stack->top += 1;
@@ -35,8 +36,8 @@ void push_4b(STACK *stack, uint32_t val) {
 
 uint8_t pop_byte(STACK *stack) {
   if (stack->top < stack->sp) {
-    // TODO: Do we need an error code?
-    return 0;
+    printf("Stack underflow\n");
+	exit(1);
   }
   uint8_t out = stack->data[stack->top];
   stack->data[stack->top] = 0;
