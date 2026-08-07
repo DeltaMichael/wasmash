@@ -1,4 +1,15 @@
+// 01
+// 01
+// 02
+// 03
+// 05
+// 08
+// 0D
+// 15
+// 22
+// 37
 fib:
+  enter8 1;
   push8 0;
   cmp8;
   pop8;
@@ -8,22 +19,50 @@ fib:
   pop8;
   jnz8 base;
   jmp8 com;
-  base:
-    push8 1;
-    ret8;
-  com:
-    prt8 0; // duplicate argument
-    push8 1;
-    sub8;
-    call fib;
-    prt8 2; // duplicate argument
-    push8 2;
-    sub8;
-    call fib;
-	add8;
-	ret8;
+base:
+  push8 1;
+  ret8;
+com:
+  prsp8 0;
+  push8 1;
+  sub8;
+  call fib;
+  prsp8 0;
+  push8 2;
+  sub8;
+  call fib;
+  prt8 2;
+  add8;
+  ret8;
 
 start:
+  push8 0;
+  call fib;
+  print8;
+  push8 1;
+  call fib;
+  print8;
+  push8 2;
+  call fib;
+  print8;
+  push8 3;
+  call fib;
+  print8;
+  push8 4;
+  call fib;
+  print8;
+  push8 5;
+  call fib;
+  print8;
   push8 6;
+  call fib;
+  print8;
+  push8 7;
+  call fib;
+  print8;
+  push8 8;
+  call fib;
+  print8;
+  push8 9;
   call fib;
   print8;

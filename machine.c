@@ -145,31 +145,38 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
     push_byte(machine->stack, first);
     break;
   case CALL_8: {
-		// save the sp, top and program counter so we can reset the stack when we return
-        int64_t old_sp = machine->stack->sp;
-        int64_t old_top = machine->stack->top;
-        push_byte(machine->stack, machine->stack->top);
-		push_byte(machine->stack, machine->stack->sp);
-        push_byte(machine->stack, machine->program_counter);
+    // save the sp, top and program counter so we can reset the stack when we
+    // return
+    push_byte(machine->stack, machine->stack->top);
+    push_byte(machine->stack, machine->stack->sp);
+    push_byte(machine->stack, machine->program_counter);
 
-        // push the top 8 stack frames to be used as arguments
-        machine->stack->sp = machine->stack->top + 1;
-        machine->stack->top = machine->stack->sp - 1;
-		int first = old_sp;
-		int last = old_top;
-		if (last - first > 8) {
-			first = last - 8;
-		}
-        for (int i = old_sp; i <= old_top; i++) {
-			push_byte(machine->stack, machine->stack->data[i]);
-		}
-
-        // jump to position
+    // set the sp and top to the next frame
+    machine->stack->sp = machine->stack->top + 1;
+    machine->stack->top = machine->stack->sp - 1;
+    // jump to position
     uint32_t position =
         LIST_GET(machine->jump_table, uint32_t, instr->data[0] - 1);
     machine->program_counter = position - 1;
 
 	break;
+  }
+  case ENTER_8: {
+    int64_t old_top = machine->stack->sp - 3;
+    if (instr->data == NULL) {
+      printf("ENTER_8 instruction should have data");
+      exit(1);
+    }
+    int64_t start = old_top - instr->data[0];
+    int64_t end = start + instr->data[0];
+    if (start < 0) {
+      printf("Trying to address stack data at pointer %d < 0", start);
+      exit(1);
+    }
+    for (int i = start; i < end; i++) {
+      push_byte(machine->stack, machine->stack->data[i]);
+    }
+    break;
   }
   case RET_8: {
     int64_t old_top = machine->stack->data[machine->stack->sp - 3];

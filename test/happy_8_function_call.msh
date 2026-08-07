@@ -1,5 +1,6 @@
 // 09
 test:
+  enter8 1;
   print8;
   ret8;
 

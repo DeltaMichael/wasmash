@@ -8,6 +8,7 @@
 // 01
 // 00
 tail:
+    enter8 1;
 	print8;
 	push8 0;
 	cmp8;

@@ -1,5 +1,6 @@
 // 80
 pow:
+    enter8 2;
 	push8 1; // result
 	push8 0; // counter
 	prsp8 1; // limit
@@ -9,7 +10,7 @@ pow:
 		prsp8 0; // load the base
 		prsp8 2; // load the result
 		mul8;
-		lrel8 2;
+		lrsp8 2;
 		push8 1;
 		sub8;
 		jmp8 loop;

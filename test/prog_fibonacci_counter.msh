@@ -21,8 +21,8 @@ prsp8 1;
 add8;
 print8;
 prsp8 1;
-lrel8 0;
-lrel8 1;
+lrsp8 0;
+lrsp8 1;
 push8 1; // counter decrement = 1
 sub8; // decrement counter
 push8 0; // end value for counter
