@@ -1,6 +1,11 @@
 #include "include/machine.h"
 #include "include/instruction.h"
 #include "include/stack.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
 
 MACHINE *machine_init() {
   MACHINE *machine = malloc(sizeof(MACHINE));
@@ -199,16 +204,32 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
 }
 
 uint8_t machine_exec_program_debug(MACHINE *machine) {
+  int piperx_file;
+  int pipetx_file;
+  char *piperx = "/tmp/mashrx";
+  mkfifo(piperx, 0666);
+  char *pipetx = "/tmp/mashtx";
+  mkfifo(pipetx, 0666);
+
+  char rx_buf[256];
+  char tx_buf[256];
   while (machine->program_counter < machine->instructions->size &&
          machine->program_counter >= 0) {
+    piperx_file = open(piperx, O_RDONLY);
+    read(piperx_file, rx_buf, sizeof(rx_buf));
+    close(piperx_file);
+
   	INSTRUCTION *instr =
       	LIST_GET(machine->instructions, INSTRUCTION *, machine->program_counter);
     machine_exec_next_instruction(machine);
+	pipetx_file = open(pipetx, O_WRONLY);
 	if (instr->data == NULL) {
-      printf("----------(%s)------------\n", instr->name);
+      sprintf(tx_buf, "----------(%s)------------\n", instr->name);
 	} else {
-      printf("---------(%s %d)----------\n", instr->name, instr->data[0]);
+      sprintf(tx_buf, "---------(%s %d)----------\n", instr->name, instr->data[0]);
 	}
+	write(pipetx_file, tx_buf, sizeof(tx_buf));
+    close(piperx_file);
     print_stack(64, machine->stack);
     machine->program_counter++;
   }
