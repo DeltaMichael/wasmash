@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 
 	piperx_file = open(piperx, O_RDONLY);
 	read(piperx_file, program_output, sizeof(program_output));
-	printf("%s\n", program_output);
+        printf("%s", program_output);
   }
   pclose(program);
 }

@@ -224,13 +224,21 @@ uint8_t machine_exec_program_debug(MACHINE *machine) {
     machine_exec_next_instruction(machine);
 	pipetx_file = open(pipetx, O_WRONLY);
 	if (instr->data == NULL) {
-      sprintf(tx_buf, "----------(%s)------------\n", instr->name);
-	} else {
-      sprintf(tx_buf, "---------(%s %d)----------\n", instr->name, instr->data[0]);
-	}
-	write(pipetx_file, tx_buf, sizeof(tx_buf));
+          sprintf(tx_buf, "%s,%d,%d,", instr->name, machine->stack->sp,
+                  machine->stack->top);
+        } else {
+          sprintf(tx_buf, "%s(%d),%d,%d,", instr->name, instr->data[0],
+                  machine->stack->sp, machine->stack->top);
+        }
+        int buf_len = strlen(tx_buf);
+        for (int i = machine->stack->sp; i <= machine->stack->top; i++) {
+          sprintf(tx_buf + buf_len, "%02X", machine->stack->data[i]);
+          buf_len += 2;
+        }
+        sprintf(tx_buf + buf_len, "\n");
+        write(pipetx_file, tx_buf, sizeof(tx_buf));
+
     close(piperx_file);
-    print_stack(64, machine->stack);
     machine->program_counter++;
   }
   return 0;

@@ -1,6 +1,7 @@
 #include "include/stack.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void testme() { printf("I am tested\n"); }
 
