@@ -1,2 +1,2 @@
 #!/bin/sh
-clang -lncurses main.c -o debug
+clang -g -fsanitize=address -fsanitize=undefined -lncurses ../list.c main.c -o debug

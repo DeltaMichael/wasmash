@@ -235,12 +235,19 @@ uint8_t machine_exec_program_debug(MACHINE *machine) {
           sprintf(tx_buf + buf_len, "%02X", machine->stack->data[i]);
           buf_len += 2;
         }
-        sprintf(tx_buf + buf_len, "\n");
         write(pipetx_file, tx_buf, sizeof(tx_buf));
-
-    close(piperx_file);
-    machine->program_counter++;
+        close(pipetx_file);
+        machine->program_counter++;
   }
+
+  piperx_file = open(piperx, O_RDONLY);
+  read(piperx_file, rx_buf, sizeof(rx_buf));
+  close(piperx_file);
+
+  pipetx_file = open(pipetx, O_WRONLY);
+  sprintf(tx_buf, "%s", "END");
+  write(pipetx_file, tx_buf, sizeof(tx_buf));
+  close(pipetx_file);
   return 0;
 }
 

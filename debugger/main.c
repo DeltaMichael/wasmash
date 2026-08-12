@@ -1,14 +1,17 @@
-#include <ncurses.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include "../include/list.h"
+#include <errno.h>
 #include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdlib.h>
+#include <ncurses.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 WINDOW *create_newwin(int height, int width, int starty, int startx);
 void destroy_win(WINDOW *local_win);
+void print_buffer(WINDOW *win, LIST *buffer);
 
 int main(int argc, char** argv) {
   // CURSES!!!
@@ -16,7 +19,9 @@ int main(int argc, char** argv) {
   WINDOW *prog_win;
   WINDOW *cmd_win;
   WINDOW *stack_win;
-  int startx, starty, width, height;
+  int prog_startx, prog_starty, prog_width, prog_height;
+  int cmd_startx, cmd_starty, cmd_width, cmd_height;
+  int stack_startx, stack_starty, stack_width, stack_height;
   int ch;
 
   initscr();			/* Start curses mode 		*/
@@ -27,15 +32,26 @@ int main(int argc, char** argv) {
   int row,col;
   getmaxyx(stdscr,row,col);
 
-  height = 3 * row / 4;
-  width = col / 2;
-  starty = 0;
-  startx = 0;
-  refresh();
-  prog_win = create_newwin(height, width, starty, startx);
+  prog_height = 3 * row / 4;
+  prog_width = col / 2;
+  prog_starty = 0;
+  prog_startx = 0;
 
-  cmd_win = create_newwin(row - height, width, height, 0);
-  stack_win = create_newwin(row, width, 0, width);
+  cmd_height = row - prog_height;
+  cmd_width = prog_width;
+  cmd_starty = prog_height;
+  cmd_startx = 0;
+
+  stack_height = row;
+  stack_width = prog_width;
+  stack_starty = 0;
+  stack_startx = prog_width;
+
+  refresh();
+  prog_win = create_newwin(prog_height, prog_width, prog_starty, prog_startx);
+  cmd_win = create_newwin(cmd_height, cmd_width, cmd_starty, cmd_startx);
+  stack_win =
+      create_newwin(stack_height, stack_width, stack_starty, stack_startx);
 
   char command[256];
   char user_input[256];
@@ -50,6 +66,8 @@ int main(int argc, char** argv) {
   char *pipetx = "/tmp/mashrx";
   mkfifo(pipetx, 0666);
 
+  LIST *prog_buffer = LIST_INIT(char *, 64);
+
   while(1) {
 	// fgets(user_input, sizeof(user_input), stdin);
 	mvwgetstr(cmd_win, 1, 1, user_input);
@@ -58,10 +76,14 @@ int main(int argc, char** argv) {
 	close(pipetx_file);
 
 	piperx_file = open(piperx, O_RDONLY);
-	read(piperx_file, program_output, sizeof(program_output));
-    // printf("%s", program_output);
-  	mvwprintw(prog_win, 1, 1, program_output);
-  	wrefresh(prog_win);
+        ssize_t n = read(piperx_file, program_output, sizeof(program_output));
+        close(piperx_file);
+        if (strcmp(program_output, "END") == 0) {
+          break;
+        }
+        LIST_APPEND(prog_buffer, char *, strdup(program_output));
+        print_buffer(prog_win, prog_buffer);
+        wrefresh(prog_win);
   }
   pclose(program);
 }
@@ -100,3 +122,17 @@ void destroy_win(WINDOW *local_win)
 	delwin(local_win);
 }
 
+void print_buffer(WINDOW *win, LIST *buffer) {
+  int height, width;
+  getmaxyx(win, height, width);
+  height -= 2;
+  int end = buffer->size;
+  int start = end - height;
+  if (start < 0) {
+    start = 0;
+  }
+  for (int i = start; i < end; i++) {
+    char *line = LIST_GET(buffer, char *, i);
+    mvwprintw(win, i - start + 1, 1, "%s", line);
+  }
+}

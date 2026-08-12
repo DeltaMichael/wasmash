@@ -25,7 +25,7 @@ typedef struct {
 #define LIST_APPEND(list, type, value)                                         \
   ({                                                                           \
     type temp = (value);                                                       \
-    if (list->pointer == list->capacity + 1) {                                 \
+    if (list->pointer + 1 >= list->capacity) {                                 \
       type *new_data =                                                         \
           (type *)realloc(list->data, sizeof(type) * list->capacity * 2);      \
       if (new_data != NULL) {                                                  \
