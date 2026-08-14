@@ -1,5 +1,7 @@
 obj/*
 index*
+debugger/debug
+debugger/debug.dSYM
 mishmash
 testmash
 unitmash

@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <ncurses.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -56,6 +57,10 @@ int main(int argc, char** argv) {
   char command[256];
   char user_input[256];
   char program_output[256];
+
+  signal(SIGPIPE, SIG_IGN); // ignore signal on write to closed pipe
+
+  // run the program
   sprintf(command, "../mishmash -f %s", argv[1]);
   FILE *program = popen(command, "r");
 
@@ -68,24 +73,25 @@ int main(int argc, char** argv) {
 
   LIST *prog_buffer = LIST_INIT(char *, 64);
 
+  pipetx_file = open(pipetx, O_WRONLY);
+  piperx_file = open(piperx, O_RDONLY);
   while(1) {
-	// fgets(user_input, sizeof(user_input), stdin);
 	mvwgetstr(cmd_win, 1, 1, user_input);
-  	pipetx_file = open(pipetx, O_WRONLY);
-	write(pipetx_file, user_input, sizeof(user_input));
-	close(pipetx_file);
+	if (-1 == write(pipetx_file, user_input, sizeof(user_input)) && errno == EPIPE) {
+		break;
+	}
 
-	piperx_file = open(piperx, O_RDONLY);
-        ssize_t n = read(piperx_file, program_output, sizeof(program_output));
-        close(piperx_file);
-        if (strcmp(program_output, "END") == 0) {
-          break;
-        }
-        LIST_APPEND(prog_buffer, char *, strdup(program_output));
-        print_buffer(prog_win, prog_buffer);
-        wrefresh(prog_win);
+    ssize_t n = read(piperx_file, program_output, sizeof(program_output));
+    mvwprintw(stack_win, 1, 1, "%d", n);
+    wrefresh(stack_win);
+    LIST_APPEND(prog_buffer, char *, strdup(program_output));
+    print_buffer(prog_win, prog_buffer);
+    wrefresh(prog_win);
   }
+  close(pipetx_file);
+  close(piperx_file);
   pclose(program);
+  endwin();
 }
 
 WINDOW *create_newwin(int height, int width, int starty, int startx)
@@ -136,3 +142,4 @@ void print_buffer(WINDOW *win, LIST *buffer) {
     mvwprintw(win, i - start + 1, 1, "%s", line);
   }
 }
+

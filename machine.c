@@ -213,40 +213,31 @@ uint8_t machine_exec_program_debug(MACHINE *machine) {
 
   char rx_buf[256];
   char tx_buf[256];
+  piperx_file = open(piperx, O_RDONLY);
+  pipetx_file = open(pipetx, O_WRONLY);
   while (machine->program_counter < machine->instructions->size &&
          machine->program_counter >= 0) {
-    piperx_file = open(piperx, O_RDONLY);
     read(piperx_file, rx_buf, sizeof(rx_buf));
-    close(piperx_file);
 
   	INSTRUCTION *instr =
       	LIST_GET(machine->instructions, INSTRUCTION *, machine->program_counter);
     machine_exec_next_instruction(machine);
-	pipetx_file = open(pipetx, O_WRONLY);
 	if (instr->data == NULL) {
           sprintf(tx_buf, "%s,%d,%d,", instr->name, machine->stack->sp,
                   machine->stack->top);
-        } else {
-          sprintf(tx_buf, "%s(%d),%d,%d,", instr->name, instr->data[0],
-                  machine->stack->sp, machine->stack->top);
-        }
-        int buf_len = strlen(tx_buf);
-        for (int i = machine->stack->sp; i <= machine->stack->top; i++) {
-          sprintf(tx_buf + buf_len, "%02X", machine->stack->data[i]);
-          buf_len += 2;
-        }
-        write(pipetx_file, tx_buf, sizeof(tx_buf));
-        close(pipetx_file);
-        machine->program_counter++;
+    } else {
+      sprintf(tx_buf, "%s %d,%d,%d,", instr->name, instr->data[0],
+              machine->stack->sp, machine->stack->top);
+    }
+    int buf_len = strlen(tx_buf);
+    for (int i = machine->stack->sp; i <= machine->stack->top; i++) {
+      sprintf(tx_buf + buf_len, "%02X", machine->stack->data[i]);
+      buf_len += 2;
+    }
+    write(pipetx_file, tx_buf, sizeof(tx_buf));
+    machine->program_counter++;
   }
-
-  piperx_file = open(piperx, O_RDONLY);
-  read(piperx_file, rx_buf, sizeof(rx_buf));
   close(piperx_file);
-
-  pipetx_file = open(pipetx, O_WRONLY);
-  sprintf(tx_buf, "%s", "END");
-  write(pipetx_file, tx_buf, sizeof(tx_buf));
   close(pipetx_file);
   return 0;
 }
