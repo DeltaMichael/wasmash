@@ -10,88 +10,113 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+typedef struct {
+  char* instr;
+  int top;
+  int sp;
+  char* bytes;
+} STACK_FRAME;
+
 WINDOW *create_newwin(int height, int width, int starty, int startx);
 void destroy_win(WINDOW *local_win);
 void print_buffer(WINDOW *win, LIST *buffer);
+int parse_int(char* input, int *output);
+int parse_bytes(char* input, char** output);
+STACK_FRAME *parse_stack_frame(char * input);
 
 int main(int argc, char** argv) {
-  // CURSES!!!
+   // CURSES!!!
 
-  WINDOW *prog_win;
-  WINDOW *cmd_win;
-  WINDOW *stack_win;
-  int prog_startx, prog_starty, prog_width, prog_height;
-  int cmd_startx, cmd_starty, cmd_width, cmd_height;
-  int stack_startx, stack_starty, stack_width, stack_height;
-  int ch;
+   WINDOW *prog_win;
+   WINDOW *cmd_win;
+   WINDOW *stack_win;
+   int prog_startx, prog_starty, prog_width, prog_height;
+   int cmd_startx, cmd_starty, cmd_width, cmd_height;
+   int stack_startx, stack_starty, stack_width, stack_height;
+   int ch;
 
-  initscr();			/* Start curses mode 		*/
-  cbreak();			/* Line buffering disabled, Pass on
-  				 * everty thing to me 		*/
-  keypad(stdscr, TRUE);		/* I need that nifty F1 	*/
+   initscr();			/* Start curses mode 		*/
+   cbreak();			/* Line buffering disabled, Pass on
+   				 * everty thing to me 		*/
+   keypad(stdscr, TRUE);		/* I need that nifty F1 	*/
 
-  int row,col;
-  getmaxyx(stdscr,row,col);
+   int row,col;
+   getmaxyx(stdscr,row,col);
 
-  prog_height = 3 * row / 4;
-  prog_width = col / 2;
-  prog_starty = 0;
-  prog_startx = 0;
+   prog_height = 3 * row / 4;
+   prog_width = col / 2;
+   prog_starty = 0;
+   prog_startx = 0;
 
-  cmd_height = row - prog_height;
-  cmd_width = prog_width;
-  cmd_starty = prog_height;
-  cmd_startx = 0;
+   cmd_height = row - prog_height;
+   cmd_width = prog_width;
+   cmd_starty = prog_height;
+   cmd_startx = 0;
 
-  stack_height = row;
-  stack_width = prog_width;
-  stack_starty = 0;
-  stack_startx = prog_width;
+   stack_height = row;
+   stack_width = prog_width;
+   stack_starty = 0;
+   stack_startx = prog_width;
 
-  refresh();
-  prog_win = create_newwin(prog_height, prog_width, prog_starty, prog_startx);
-  cmd_win = create_newwin(cmd_height, cmd_width, cmd_starty, cmd_startx);
-  stack_win =
-      create_newwin(stack_height, stack_width, stack_starty, stack_startx);
+   refresh();
+   prog_win = create_newwin(prog_height, prog_width, prog_starty, prog_startx);
+   cmd_win = create_newwin(cmd_height, cmd_width, cmd_starty, cmd_startx);
+   stack_win =
+       create_newwin(stack_height, stack_width, stack_starty, stack_startx);
 
-  char command[256];
-  char user_input[256];
-  char program_output[256];
+   char command[256];
+   char user_input[256];
+   char program_output[256];
 
-  signal(SIGPIPE, SIG_IGN); // ignore signal on write to closed pipe
+   signal(SIGPIPE, SIG_IGN); // ignore signal on write to closed pipe
 
-  // run the program
-  sprintf(command, "../mishmash -f %s", argv[1]);
-  FILE *program = popen(command, "r");
+   // run the program
+   sprintf(command, "../mishmash -f %s", argv[1]);
+   FILE *program = popen(command, "r");
 
-  int piperx_file;
-  int pipetx_file;
-  char *piperx = "/tmp/mashtx";
-  mkfifo(piperx, 0666);
-  char *pipetx = "/tmp/mashrx";
-  mkfifo(pipetx, 0666);
+   int piperx_file;
+   int pipetx_file;
+   char *piperx = "/tmp/mashtx";
+   mkfifo(piperx, 0666);
+   char *pipetx = "/tmp/mashrx";
+   mkfifo(pipetx, 0666);
 
-  LIST *prog_buffer = LIST_INIT(char *, 64);
+   LIST *prog_buffer = LIST_INIT(char *, 64);
 
-  pipetx_file = open(pipetx, O_WRONLY);
-  piperx_file = open(piperx, O_RDONLY);
-  while(1) {
-	mvwgetstr(cmd_win, 1, 1, user_input);
-	if (-1 == write(pipetx_file, user_input, sizeof(user_input)) && errno == EPIPE) {
-		break;
-	}
+   pipetx_file = open(pipetx, O_WRONLY);
+   piperx_file = open(piperx, O_RDONLY);
+   int frame_index = 1;
+   while(1) {
+ 	mvwgetstr(cmd_win, 1, 1, user_input);
+ 	if (write(pipetx_file, user_input, sizeof(user_input)) == -1 && errno == EPIPE) {
+ 		break;
+ 	}
 
-    ssize_t n = read(piperx_file, program_output, sizeof(program_output));
-    mvwprintw(stack_win, 1, 1, "%d", n);
-    wrefresh(stack_win);
-    LIST_APPEND(prog_buffer, char *, strdup(program_output));
-    print_buffer(prog_win, prog_buffer);
-    wrefresh(prog_win);
-  }
-  close(pipetx_file);
-  close(piperx_file);
-  pclose(program);
-  endwin();
+     ssize_t n = read(piperx_file, program_output, sizeof(program_output));
+ 	 STACK_FRAME *frame = parse_stack_frame(program_output);
+	 char buf[256];
+	 strcpy(buf, frame->instr);
+	 char* instr = strtok(buf, " ");
+	 if (strcmp(instr, "call") == 0) {
+		frame_index++;
+	 }
+	 if (strcmp(instr, "ret8") == 0) {
+        mvwprintw(stack_win, frame_index, 1, "%s", "                                                 ");
+        // wrefresh(stack_win);
+		frame_index--;
+	 }
+     mvwprintw(stack_win, frame_index, 1, "%s", "                                                 ");
+     wrefresh(stack_win);
+     mvwprintw(stack_win, frame_index, 1, "[%s]", frame->bytes);
+     wrefresh(stack_win);
+     LIST_APPEND(prog_buffer, char *, frame->instr);
+     print_buffer(prog_win, prog_buffer);
+     wrefresh(prog_win);
+   }
+   close(pipetx_file);
+   close(piperx_file);
+   pclose(program);
+   endwin();
 }
 
 WINDOW *create_newwin(int height, int width, int starty, int startx)
@@ -139,7 +164,61 @@ void print_buffer(WINDOW *win, LIST *buffer) {
   }
   for (int i = start; i < end; i++) {
     char *line = LIST_GET(buffer, char *, i);
+    mvwprintw(win, i - start + 1, 1, "%s", "                                            ");
     mvwprintw(win, i - start + 1, 1, "%s", line);
   }
+}
+
+int parse_int(char* input, int *output) {
+  char buf[256];
+  int i = 0;
+  while (*(input + i) != '\0' && *(input + i) != ',') {
+  	buf[i] = *(input + i);
+  	i++;
+  }
+  buf[i] = '\0';
+  *output = atoi(buf);
+  return i + 1;
+}
+
+int parse_bytes(char* input, char** output) {
+  char buf[256];
+  int i = 0;
+  while (*(input + i) != '\0' && *(input + i) != ',') {
+  	buf[i] = *(input + i);
+  	i++;
+  }
+  buf[i] = '\0';
+  *output = strdup(buf);
+  return i + 1;
+}
+
+int parse_bytes_split(char* input, char** output) {
+  char buf[256];
+  int i = 0;
+  int j = 0;
+  while (*(input + i) != '\0' && *(input + i) != ',') {
+  	buf[j] = *(input + i);
+  	i++;
+  	j++;
+	if (i % 2 == 0) {
+		buf[j] = ' ';
+		j++;
+	}
+  }
+  buf[j] = '\0';
+  *output = strdup(buf);
+  return i + 1;
+}
+
+STACK_FRAME *parse_stack_frame(char * input) {
+	char *instr;
+	int next = 0;
+	STACK_FRAME *out = malloc(sizeof(STACK_FRAME));
+	next += parse_bytes(input + next, &out->instr);
+	next += parse_int(input + next, &out->top);
+	next += parse_int(input + next, &out->sp);
+	parse_bytes_split(input + next, &out->bytes);
+	return out;
 }
 
