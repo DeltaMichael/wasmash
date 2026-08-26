@@ -58,6 +58,11 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
     second = pop_byte(machine->stack);
     push_byte(machine->stack, second / first);
     break;
+  case MOD_8:
+    first = pop_byte(machine->stack);
+    second = pop_byte(machine->stack);
+    push_byte(machine->stack, second % first);
+    break;
   case PRSP_8:
     if (instr->data == NULL) {
       printf("Push instruction should have data");

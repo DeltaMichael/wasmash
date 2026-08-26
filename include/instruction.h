@@ -10,6 +10,8 @@ typedef enum {
   MUL_8,  // pop two values of the stack, multiply them and push the result
   DIV_8,  // divide the values on top of the stack, e.g. divider = top, divident
           // = top - 1
+  MOD_8,  // modulo the values on top of the stack, e.g. divider = top, divident
+          // = top - 1
   PUSH_8, // push a value
   POP_8,  // pop a value
   PRINT_8, // print the value on top of the stack

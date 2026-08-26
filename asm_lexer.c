@@ -53,6 +53,7 @@ ASM_LEXER *asm_lexer_init(char *input) {
   hashmap_insert_int(lexer->instr_no_arg, "mul8", MUL_8);
   hashmap_insert_int(lexer->instr_no_arg, "sub8", SUB_8);
   hashmap_insert_int(lexer->instr_no_arg, "div8", DIV_8);
+  hashmap_insert_int(lexer->instr_no_arg, "mod8", MOD_8);
   hashmap_insert_int(lexer->instr_no_arg, "pop8", POP_8);
   hashmap_insert_int(lexer->instr_no_arg, "cmp8", CMP_8);
   hashmap_insert_int(lexer->instr_no_arg, "print8", PRINT_8);
@@ -75,6 +76,7 @@ ASM_LEXER *asm_lexer_init(char *input) {
   dinsert_instr_proc(lexer->dispatcher, "mul8", asm_lexer_no_arg_instr);
   dinsert_instr_proc(lexer->dispatcher, "sub8", asm_lexer_no_arg_instr);
   dinsert_instr_proc(lexer->dispatcher, "div8", asm_lexer_no_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "mod8", asm_lexer_no_arg_instr);
   dinsert_instr_proc(lexer->dispatcher, "pop8", asm_lexer_no_arg_instr);
   dinsert_instr_proc(lexer->dispatcher, "cmp8", asm_lexer_no_arg_instr);
   dinsert_instr_proc(lexer->dispatcher, "ret8", asm_lexer_no_arg_instr);

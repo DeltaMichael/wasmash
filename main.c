@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
   uint32_t start_position = LIST_GET(machine->jump_table, uint32_t, start);
   machine->program_counter = start_position;
 
-  machine_exec_program_debug(machine);
+  machine_exec_program(machine);
 
 #ifdef __EMSCRIPTEN__
   js_update_stack(machine->stack->top + 1, stack->data);

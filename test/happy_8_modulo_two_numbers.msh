@@ -1,0 +1,5 @@
+// 01
+push8 25;
+push8 3;
+mod8;
+print8;
