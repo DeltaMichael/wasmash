@@ -1,20 +1,13 @@
 #include "include/asm_lexer.h"
-#include "include/instruction.h"
 #include "include/list.h"
 #include "include/machine.h"
-#include "include/stack.h"
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-EM_JS(void, js_update_stack, (int length, uint8_t *data), {
-  for (var i = 0; i < length; i++) {
-    stackData[i] = Module.HEAPU8[data + i];
-  }
-  updateStackView();
-});
-#endif
+void usage() {
+    printf("Usage:\nmishmash -f /path/to/program/file\nmishmash -i 'inline instructions'\n");
+}
 
 char *read_file(char *path) {
   FILE *f = fopen(path, "rb");
@@ -29,17 +22,43 @@ char *read_file(char *path) {
 }
 
 int main(int argc, char **argv) {
+
+  int ch;
+  int ffile, finline, fdebug = 0;
+  char* file_path = NULL;
+  char* inline_instructions = NULL;
+
+  while ((ch = getopt(argc, argv, "i:f:d")) != -1) {
+	switch(ch) {
+		case 'i':
+			finline = 1;
+			inline_instructions = strdup(optarg);
+			break;
+		case 'f':
+			ffile = 1;
+			file_path = strdup(optarg);
+			break;
+		case 'd':
+			fdebug = 1;
+			break;
+		default:
+			usage();
+			break;
+	}
+  }
+
   LIST *program = NULL;
   LIST *jump_table = NULL;
   uint32_t start;
-  if (argc >= 3 && strcmp(argv[1], "-i") == 0) {
+
+  if (finline && inline_instructions) {
     // TODO: Fix it, does not currently work
-    ASM_LEXER *lexer = asm_lexer_init(argv[2]);
+    ASM_LEXER *lexer = asm_lexer_init(inline_instructions);
     asm_lexer_process(lexer);
     program = lexer->instructions;
     start = asm_lexer_get_start_line(lexer);
-  } else if (argc == 3 && strcmp(argv[1], "-f") == 0) {
-    char *raw_input = read_file(argv[2]);
+  } else if (ffile && file_path) {
+    char *raw_input = read_file(file_path);
     ASM_LEXER *lexer = asm_lexer_init(raw_input);
     asm_lexer_process(lexer);
     program = lexer->instructions;
@@ -53,14 +72,8 @@ int main(int argc, char **argv) {
     jump_table = lexer->jump_table;
     start = asm_lexer_get_start_line(lexer);
   } else {
-#ifdef __EMSCRIPTEN__
-    // TODO: Figure this out
-#else
-    printf("Usage\n");
-    printf("mishmash -f /path/to/program/file\n");
-    printf("mishmash -i 'inline instructions'\n");
+	usage();
     return 1;
-#endif
   }
 
   MACHINE *machine = machine_init();
@@ -69,14 +82,12 @@ int main(int argc, char **argv) {
 
   uint32_t start_position = LIST_GET(machine->jump_table, uint32_t, start);
   machine->program_counter = start_position;
+  if (fdebug) {
+    machine_exec_program_debug(machine);
+  } else {
+    machine_exec_program(machine);
+  }
 
-  machine_exec_program(machine);
-
-#ifdef __EMSCRIPTEN__
-  js_update_stack(machine->stack->top + 1, stack->data);
-#else
-//	print_stack(21, machine->stack->data);
-#endif
   return 0;
 }
 

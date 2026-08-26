@@ -71,7 +71,7 @@ int main(int argc, char** argv) {
    signal(SIGPIPE, SIG_IGN); // ignore signal on write to closed pipe
 
    // run the program
-   sprintf(command, "../mishmash -f %s", argv[1]);
+   sprintf(command, "../mishmash -f %s -d", argv[1]);
    FILE *program = popen(command, "r");
 
    int piperx_file;
