@@ -1,16 +1,16 @@
 // 04
 // 04
 // 03
-push8 1;
-push8 2;
-push8 3;
-push8 4;
-prsp8 0; // load value at stack pointer on top 1
-prsp8 2; // load value at stack pointer + 2 on top 3
-add8; // add values 1 + 3 = 4
-print8;
-lrsp8 0; // change value at stack pointer to equal value at top $sp = 4
-prsp8 0; // load value at stack pointer on top, i.e. push 4 to top
-print8;
-prsp8 2; // load value at stack pointer + 2 on top, i.e. push 3 to top
-print8;
+push 8, 1;
+push 8, 2;
+push 8, 3;
+push 8, 4;
+prsp 8, 0; // load value at stack pointer on top 1
+prsp 8, 2; // load value at stack pointer + 2 on top 3
+add 8; // add values 1 + 3 = 4
+print 8;
+lrsp 8, 0; // change value at stack pointer to equal value at top $sp = 4
+prsp 8, 0; // load value at stack pointer on top, i.e. push 4 to top
+print 8;
+prsp 8, 2; // load value at stack pointer + 2 on top, i.e. push 3 to top
+print 8;

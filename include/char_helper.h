@@ -10,5 +10,7 @@ bool is_lineterm(char symbol);
 bool is_whitespace(char symbol);
 bool is_newline(char symbol);
 bool is_forward_slash(char symbol);
+bool is_comma(char symbol);
 
 #endif
+

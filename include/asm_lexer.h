@@ -28,12 +28,13 @@ typedef struct {
   LIST *jump_table;
   HASHMAP *instr_no_arg;
   HASHMAP *instr_arg;
+  HASHMAP *instr_default_size;
   HASHMAP *labels;
   HASHMAP *labels_interpolation;
   DISPATCH *dispatcher;
 } ASM_LEXER;
 
-typedef void (*INSTR_PROC)(ASM_LEXER *, char *, char *);
+typedef void (*INSTR_PROC)(ASM_LEXER *, char *, int, char *);
 
 DISPATCH *dinit();
 void dinsert_instr_proc(DISPATCH *dispatcher, char *key, INSTR_PROC instr_proc);
@@ -47,17 +48,18 @@ void asm_lexer_skip_whitespace(ASM_LEXER *lexer);
 char *asm_lexer_instruction(ASM_LEXER *lexer);
 char *asm_lexer_number(ASM_LEXER *lexer);
 void asm_lexer_interpolate_labels(ASM_LEXER *lexer);
-void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char **argument);
+void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char** size, char **argument);
 void asm_lexer_process(ASM_LEXER *lexer);
 void asm_lexer_skip_to_terminator(ASM_LEXER *lexer);
 void asm_lexer_report_error(ASM_LEXER *lexer, const char *fmt, ...)
     __attribute__((format(printf, 2, 3)));
 int asm_lexer_get_start_line(ASM_LEXER *lexer);
 
-void asm_lexer_no_arg_instr(ASM_LEXER *lexer, char *instruction,
+void asm_lexer_no_arg_instr(ASM_LEXER *lexer, char *instruction, int size,
                             char *argument);
-void asm_lexer_one_arg_instr(ASM_LEXER *lexer, char *instruction,
+void asm_lexer_one_arg_instr(ASM_LEXER *lexer, char *instruction, int size,
                              char *argument);
-void asm_lexer_jump_instr(ASM_LEXER *lexer, char *instruction, char *argument);
+void asm_lexer_jump_instr(ASM_LEXER *lexer, char *instruction, int size, char *argument);
 
 #endif
+

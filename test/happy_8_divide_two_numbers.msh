@@ -1,5 +1,5 @@
 // 08
-push8 24;
-push8 3;
-div8;
-print8;
+push 8, 24;
+push 8, 3;
+div 8;
+print 8;

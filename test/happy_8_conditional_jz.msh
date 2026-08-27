@@ -1,10 +1,10 @@
 // 0A
-push8 0;
-push8 10;
-cmp8;
-jz8 9;
-prsp8 0;
-print8;
-jmp8 9;
-print8;
-nop;
+push 8, 0;
+push 8, 10;
+cmp 8;
+jz 9;
+prsp 8, 0;
+print 8;
+jmp 9;
+print 8;
+nop 8;

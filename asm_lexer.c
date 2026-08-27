@@ -33,54 +33,57 @@ ASM_LEXER *asm_lexer_init(char *input) {
   lexer->jump_table = LIST_INIT(uint32_t, 128);
   lexer->instr_arg = hashmap_init();
   lexer->instr_no_arg = hashmap_init();
+  lexer->instr_default_size = hashmap_init();
   lexer->labels = hashmap_init();
   lexer->labels_interpolation = hashmap_init();
   lexer->dispatcher = dinit();
 
-  hashmap_insert_int(lexer->instr_arg, "push8", PUSH_8);
-  hashmap_insert_int(lexer->instr_arg, "prsp8", PRSP_8);
-  hashmap_insert_int(lexer->instr_arg, "prt8", PRT_8);
-  hashmap_insert_int(lexer->instr_arg, "pabs8", PABS_8);
-  hashmap_insert_int(lexer->instr_arg, "lrsp8", LRSP_8);
-  hashmap_insert_int(lexer->instr_arg, "labs8", LABS_8);
-  hashmap_insert_int(lexer->instr_arg, "jz8", JZ_8);
-  hashmap_insert_int(lexer->instr_arg, "jnz8", JNZ_8);
-  hashmap_insert_int(lexer->instr_arg, "jmp8", JMP_8);
-  hashmap_insert_int(lexer->instr_arg, "call", CALL_8);
-  hashmap_insert_int(lexer->instr_arg, "enter8", ENTER_8);
+  hashmap_insert_int(lexer->instr_arg, "push", PUSH_8);
+  hashmap_insert_int(lexer->instr_arg, "prsp", PRSP_8);
+  hashmap_insert_int(lexer->instr_arg, "prt", PRT_8);
+  hashmap_insert_int(lexer->instr_arg, "pabs", PABS_8);
+  hashmap_insert_int(lexer->instr_arg, "lrsp", LRSP_8);
+  hashmap_insert_int(lexer->instr_arg, "labs", LABS_8);
+  hashmap_insert_int(lexer->instr_arg, "enter", ENTER_8);
 
-  hashmap_insert_int(lexer->instr_no_arg, "add8", ADD_8);
-  hashmap_insert_int(lexer->instr_no_arg, "mul8", MUL_8);
-  hashmap_insert_int(lexer->instr_no_arg, "sub8", SUB_8);
-  hashmap_insert_int(lexer->instr_no_arg, "div8", DIV_8);
-  hashmap_insert_int(lexer->instr_no_arg, "mod8", MOD_8);
-  hashmap_insert_int(lexer->instr_no_arg, "pop8", POP_8);
-  hashmap_insert_int(lexer->instr_no_arg, "cmp8", CMP_8);
-  hashmap_insert_int(lexer->instr_no_arg, "print8", PRINT_8);
-  hashmap_insert_int(lexer->instr_no_arg, "ret8", RET_8);
+  hashmap_insert_int(lexer->instr_default_size, "jz", JZ_8);
+  hashmap_insert_int(lexer->instr_default_size, "jnz", JNZ_8);
+  hashmap_insert_int(lexer->instr_default_size, "jmp", JMP_8);
+  hashmap_insert_int(lexer->instr_default_size, "call", CALL_8);
+
+  hashmap_insert_int(lexer->instr_no_arg, "add", ADD_8);
+  hashmap_insert_int(lexer->instr_no_arg, "mul", MUL_8);
+  hashmap_insert_int(lexer->instr_no_arg, "sub", SUB_8);
+  hashmap_insert_int(lexer->instr_no_arg, "div", DIV_8);
+  hashmap_insert_int(lexer->instr_no_arg, "mod", MOD_8);
+  hashmap_insert_int(lexer->instr_no_arg, "pop", POP_8);
+  hashmap_insert_int(lexer->instr_no_arg, "cmp", CMP_8);
+  hashmap_insert_int(lexer->instr_no_arg, "ret", RET_8);
+  hashmap_insert_int(lexer->instr_no_arg, "print", PRINT_8);
   hashmap_insert_int(lexer->instr_no_arg, "nop", NOP);
 
-  dinsert_instr_proc(lexer->dispatcher, "push8", asm_lexer_one_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "prsp8", asm_lexer_one_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "prt8", asm_lexer_one_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "pabs8", asm_lexer_one_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "lrsp8", asm_lexer_one_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "labs8", asm_lexer_one_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "enter8", asm_lexer_one_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "jz8", asm_lexer_jump_instr);
-  dinsert_instr_proc(lexer->dispatcher, "jnz8", asm_lexer_jump_instr);
-  dinsert_instr_proc(lexer->dispatcher, "jmp8", asm_lexer_jump_instr);
+  dinsert_instr_proc(lexer->dispatcher, "push", asm_lexer_one_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "prsp", asm_lexer_one_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "prt", asm_lexer_one_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "pabs", asm_lexer_one_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "lrsp", asm_lexer_one_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "labs", asm_lexer_one_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "enter", asm_lexer_one_arg_instr);
+
+  dinsert_instr_proc(lexer->dispatcher, "jz", asm_lexer_jump_instr);
+  dinsert_instr_proc(lexer->dispatcher, "jnz", asm_lexer_jump_instr);
+  dinsert_instr_proc(lexer->dispatcher, "jmp", asm_lexer_jump_instr);
   dinsert_instr_proc(lexer->dispatcher, "call", asm_lexer_jump_instr);
 
-  dinsert_instr_proc(lexer->dispatcher, "add8", asm_lexer_no_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "mul8", asm_lexer_no_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "sub8", asm_lexer_no_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "div8", asm_lexer_no_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "mod8", asm_lexer_no_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "pop8", asm_lexer_no_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "cmp8", asm_lexer_no_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "ret8", asm_lexer_no_arg_instr);
-  dinsert_instr_proc(lexer->dispatcher, "print8", asm_lexer_no_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "add", asm_lexer_no_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "mul", asm_lexer_no_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "sub", asm_lexer_no_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "div", asm_lexer_no_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "mod", asm_lexer_no_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "pop", asm_lexer_no_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "cmp", asm_lexer_no_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "ret", asm_lexer_no_arg_instr);
+  dinsert_instr_proc(lexer->dispatcher, "print", asm_lexer_no_arg_instr);
   dinsert_instr_proc(lexer->dispatcher, "nop", asm_lexer_no_arg_instr);
 
   return lexer;
@@ -176,27 +179,27 @@ void asm_lexer_report_error(ASM_LEXER *lexer, const char *fmt, ...) {
   va_end(args2);
 }
 
-void asm_lexer_no_arg_instr(ASM_LEXER *lexer, char *instruction,
+void asm_lexer_no_arg_instr(ASM_LEXER *lexer, char *instruction, int size,
                             char *argument) {
   int opcode;
   hashmap_get_int(lexer->instr_no_arg, instruction, &opcode);
-  INSTRUCTION *instr = instruction_create(instruction, opcode, NULL);
+  INSTRUCTION *instr = instruction_create(instruction, opcode, size, NULL);
   LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
 }
 
-void asm_lexer_one_arg_instr(ASM_LEXER *lexer, char *instruction,
+void asm_lexer_one_arg_instr(ASM_LEXER *lexer, char *instruction, int size,
                              char *argument) {
   int opcode;
   hashmap_get_int(lexer->instr_arg, instruction, &opcode);
   uint8_t *data = malloc(sizeof(uint8_t));
   *data = atoi(argument);
-  INSTRUCTION *instr = instruction_create(instruction, opcode, data);
+  INSTRUCTION *instr = instruction_create(instruction, opcode, size, data);
   LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
 }
 
-void asm_lexer_jump_instr(ASM_LEXER *lexer, char *instruction, char *argument) {
+void asm_lexer_jump_instr(ASM_LEXER *lexer, char *instruction, int size, char *argument) {
   int opcode;
-  hashmap_get_int(lexer->instr_arg, instruction, &opcode);
+  hashmap_get_int(lexer->instr_default_size, instruction, &opcode);
   uint8_t *data = malloc(sizeof(uint8_t));
   char *endptr;
   *data = strtol(argument, &endptr, 10);
@@ -214,36 +217,71 @@ void asm_lexer_jump_instr(ASM_LEXER *lexer, char *instruction, char *argument) {
         hashmap_insert_list(lexer->labels_interpolation, argument,
                             interpolations);
       }
-      INSTRUCTION *instr = instruction_create(instruction, opcode, data);
+      INSTRUCTION *instr = instruction_create(instruction, opcode, size, data);
       LIST_APPEND(interpolations, INSTRUCTION *, instr);
       LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
       return;
     }
   }
-  INSTRUCTION *instr = instruction_create(instruction, opcode, data);
+  INSTRUCTION *instr = instruction_create(instruction, opcode, size, data);
   LIST_APPEND(lexer->instructions, INSTRUCTION *, instr);
 }
 
-void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char **argument) {
+void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char** size, char **argument) {
   asm_lexer_skip_whitespace(lexer);
+  char* first_arg = NULL;
+  char* second_arg = NULL;
   if (is_alnum(asm_lexer_current(lexer))) {
     // parse instruction
     int value;
     *instr = asm_lexer_instruction(lexer);
     asm_lexer_skip_whitespace(lexer);
     // parse arguments if any
-    *argument = asm_lexer_number(lexer);
+	first_arg = asm_lexer_number(lexer);
+    asm_lexer_skip_whitespace(lexer);
+
+	if (is_comma(asm_lexer_current(lexer))) {
+		asm_lexer_eat(lexer, ',');
+        asm_lexer_skip_whitespace(lexer);
+    	second_arg = asm_lexer_number(lexer);
+	}
+
     if (hashmap_get_int(lexer->instr_arg, *instr, &value) == 0) {
+	  *size = first_arg;
+	  *argument = second_arg;
+	  if (*size == NULL) {
+        asm_lexer_report_error(
+            lexer, "Instruction %s requires size\n", *instr);
+	  }
       if (*argument == NULL) {
         asm_lexer_report_error(lexer, "Expected argument for instruction %s\n",
                                *instr);
       }
     } else if (hashmap_get_int(lexer->instr_no_arg, *instr, &value) == 0) {
+	  *size = first_arg;
+	  *argument = second_arg;
+	  if (*size == NULL) {
+        asm_lexer_report_error(
+            lexer, "Instruction %s requires size\n", *instr);
+	  }
       if (*argument != NULL) {
         asm_lexer_report_error(
             lexer, "Instruction %s does not require an argument\n", *instr);
       }
-    }
+    } else if (hashmap_get_int(lexer->instr_default_size, *instr, &value) == 0) {
+		if (first_arg != NULL && second_arg == NULL) {
+			*size = strdup("16"); // default size
+			*argument = first_arg;
+		} else if (first_arg != NULL && second_arg != NULL) {
+			*size = first_arg;
+			*argument = second_arg;
+		} else {
+        	asm_lexer_report_error(
+        	    lexer, "Instruction %s require argument or size + argument, e.g. %s [ARGUMENT] or %s [SIZE] [ARGUMENT]\n", *instr, *instr, *instr);
+		}
+	} else {
+		// TODO: Should this be handled?
+	}
 
     asm_lexer_skip_whitespace(lexer);
 
@@ -312,9 +350,9 @@ int asm_lexer_get_start_line(ASM_LEXER *lexer) {
 void asm_lexer_process(ASM_LEXER *lexer) {
   while (!asm_lexer_at_end(lexer)) {
     char *instr = NULL;
+	char *size = NULL;
     char *argument = NULL;
-    asm_lexer_process_instr(lexer, &instr, &argument);
-
+    asm_lexer_process_instr(lexer, &instr, &size, &argument);
     // Comment, empty line or label
     if (instr == NULL) {
       continue;
@@ -326,7 +364,7 @@ void asm_lexer_process(ASM_LEXER *lexer) {
       asm_lexer_report_error(lexer, "Unknown instruction '%s'\n", instr);
     }
     if (lexer->errors->size == 0) {
-      proc(lexer, instr, argument);
+      proc(lexer, instr, atoi(size), argument);
     }
 
     // Update the jump table, increment the line

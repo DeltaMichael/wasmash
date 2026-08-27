@@ -28,8 +28,7 @@ int main(int argc, char **argv) {
   char* file_path = NULL;
   char* inline_instructions = NULL;
 
-  while ((ch = getopt(argc, argv, "i:f:d")) != -1) {
-	switch(ch) {
+  while ((ch = getopt(argc, argv, "i:f:d")) != -1) { switch(ch) {
 		case 'i':
 			finline = 1;
 			inline_instructions = strdup(optarg);

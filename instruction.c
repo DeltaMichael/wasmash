@@ -4,10 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-INSTRUCTION *instruction_create(const char* name, OPCODE code, uint8_t *data) {
+INSTRUCTION *instruction_create(const char* name, OPCODE code, int size, uint8_t *data) {
   INSTRUCTION *instr = calloc(1, sizeof(INSTRUCTION));
   instr->name = strdup(name);
   instr->opcode = code;
+  instr->data_size = size;
   instr->data = data;
   return instr;
 }
