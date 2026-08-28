@@ -1,5 +1,5 @@
 // 10
-push8 4;
-push8 4;
-mul8;
-print8;
+push 8, 4;
+push 8, 4;
+mul 8;
+print 8;

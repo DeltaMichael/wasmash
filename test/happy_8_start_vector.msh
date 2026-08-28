@@ -1,12 +1,12 @@
 // 0F
 myfunc:
-  push8 3;
-  push8 2;
-  add8;
-  print8;
+  push 8, 3;
+  push 8, 2;
+  add 8;
+  print 8;
 
 start:
-  push8 5;
-  push8 10;
-  add8;
-  print8;
+  push 8, 5;
+  push 8, 10;
+  add 8;
+  print 8;

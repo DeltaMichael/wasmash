@@ -1,9 +1,9 @@
 // 09
 test:
-  enter8 1;
-  print8;
-  ret8;
+  enter 8, 1;
+  print 8;
+  ret 8;
 
 start:
-  push8 9;
+  push 8, 9;
   call test;

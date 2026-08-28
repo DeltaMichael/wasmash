@@ -1,24 +1,24 @@
 // 80
 pow:
-    enter8 2;
-	push8 1; // result
-	push8 0; // counter
-	prsp8 1; // limit
+    enter 8, 2;
+	push 8, 1; // result
+	push 8, 0; // counter
+	prsp 8, 1; // limit
 	loop:
-		cmp8; // compare the counter and the limit, jump to end if zero
-		jnz8 end;
-		prsp8 0; // load the base
-		prsp8 2; // load the result
-		mul8;
-		lrsp8 2;
-		push8 1;
-		sub8;
-		jmp8 loop;
+		cmp 8; // compare the counter and the limit, jump to end if zero
+		jnz end;
+		prsp 8, 0; // load the base
+		prsp 8, 2; // load the result
+		mul 8;
+		lrsp 8, 2;
+		push 8, 1;
+		sub 8;
+		jmp loop;
 	end:
-		prsp8 2; // push the result to top
-		ret8;
+		prsp 8, 2; // push the result to top
+		ret 8;
 start:
-	push8 2;
-	push8 7;
+	push 8, 2;
+	push 8, 7;
 	call pow;
-	print8;
+	print 8;

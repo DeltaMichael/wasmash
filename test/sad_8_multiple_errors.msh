@@ -1,12 +1,12 @@
-// ERR L7: Expected argument for instruction push8
+// ERR L7: Expected argument for instruction push
 // ERR L8: Expected ; but got '_'
 // ERR L8: Unknown instruction 'label'
 // ERR L9: Unexpected character @
-// ERR L10: Instruction add8 does not require an argument
+// ERR L10: Instruction add does not require an argument
 // ERR L10: Expected ; but got 'p'
-push8;
+push 8;
 label_
 @messed_up_label:
-push8 10;
-add8 24
-print8;
+push 8, 10;
+add 8, 24
+print 8;

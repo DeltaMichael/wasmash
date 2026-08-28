@@ -11,20 +11,20 @@
 // 59
 // 90
 // E9
-push8 1;
-print8;
-push8 1;
-print8;
-prsp8 0;
-prsp8 1;
-add8;
-print8;
-prsp8 1;
-lrsp8 0;
-lrsp8 1;
-prsp8 1;
-push8 233; // this is cheating a bit, you have to know the number before you know the number :D
-cmp8;
-pop8;
-pop8;
-jz8 18;
+push 8, 1;
+print 8;
+push 8, 1;
+print 8;
+prsp 8, 0;
+prsp 8, 1;
+add 8;
+print 8;
+prsp 8, 1;
+lrsp 8, 0;
+lrsp 8, 1;
+prsp 8, 1;
+push 8, 233; // this is cheating a bit, you have to know the number before you know the number :D
+cmp 8;
+pop 8;
+pop 8;
+jz 18;

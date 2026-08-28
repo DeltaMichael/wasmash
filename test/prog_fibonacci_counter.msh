@@ -11,21 +11,21 @@
 // 59
 // 90
 // E9
-push8 1;
-print8;
-push8 1;
-print8;
-push8 11; // counter = 11 because we print the first two
-prsp8 0;
-prsp8 1;
-add8;
-print8;
-prsp8 1;
-lrsp8 0;
-lrsp8 1;
-push8 1; // counter decrement = 1
-sub8; // decrement counter
-push8 0; // end value for counter
-cmp8; // check counter
-pop8;
-jz8 19; // loop back if counter is not zero
+push 8, 1;
+print 8;
+push 8, 1;
+print 8;
+push 8, 11; // counter = 11 because we print the first two
+prsp 8, 0;
+prsp 8, 1;
+add 8;
+print 8;
+prsp 8, 1;
+lrsp 8, 0;
+lrsp 8, 1;
+push 8, 1; // counter decrement = 1
+sub 8; // decrement counter
+push 8, 0; // end value for counter
+cmp 8; // check counter
+pop 8;
+jz 19; // loop back if counter is not zero

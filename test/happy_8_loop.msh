@@ -9,12 +9,12 @@
 // 02
 // 01
 // 00
-push8 0;
-push8 10;
-cmp8;
-jnz8 20;
-print8;
-push8 1;
-sub8;
-jmp8 14;
-print8;
+push 8, 0;
+push 8, 10;
+cmp 8;
+jnz 20;
+print 8;
+push 8, 1;
+sub 8;
+jmp 8, 14;
+print 8;

@@ -9,14 +9,14 @@
 // 02
 // 01
 // 00
-push8 0;
-push8 10;
+push 8, 0;
+push 8, 10;
 loop:
-	cmp8;
-	jnz8 end;
-	print8;
-	push8 1;
-	sub8;
-	jmp8 loop;
+	cmp 8;
+	jnz end;
+	print 8;
+	push 8, 1;
+	sub 8;
+	jmp loop;
 end:
-	print8;
+	print 8;
