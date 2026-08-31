@@ -247,27 +247,25 @@ void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char** size, char *
 	}
 
     if (hashmap_get_int(lexer->instr_arg, *instr, &value) == 0) {
-	  *size = first_arg;
-	  *argument = second_arg;
-	  if (*size == NULL) {
-        asm_lexer_report_error(
-            lexer, "Instruction %s requires size\n", *instr);
-	  }
-      if (*argument == NULL) {
-        asm_lexer_report_error(lexer, "Expected argument for instruction %s\n",
-                               *instr);
+	  if (first_arg != NULL && second_arg == NULL) {
+	  	*size = strdup("16"); // default size
+	  	*argument = first_arg;
+	  } else if (first_arg != NULL && second_arg != NULL) {
+	  	*size = first_arg;
+	  	*argument = second_arg;
+	  } else {
+    	asm_lexer_report_error(
+    	    lexer, "Instruction %s requires argument or size + argument, e.g. %s [ARGUMENT] or %s [SIZE] [ARGUMENT]\n", *instr, *instr, *instr);
       }
     } else if (hashmap_get_int(lexer->instr_no_arg, *instr, &value) == 0) {
-	  *size = first_arg;
-	  *argument = second_arg;
-	  if (*size == NULL) {
-        asm_lexer_report_error(
-            lexer, "Instruction %s requires size\n", *instr);
-	  }
-      if (*argument != NULL) {
+	  if (first_arg != NULL && second_arg == NULL) {
+	  	*size = first_arg;
+	  } else if (first_arg == NULL && second_arg == NULL) {
+		*size = "16";
+	  } else {
         asm_lexer_report_error(
             lexer, "Instruction %s does not require an argument\n", *instr);
-      }
+	  }
     } else if (hashmap_get_int(lexer->instr_default_size, *instr, &value) == 0) {
 		if (first_arg != NULL && second_arg == NULL) {
 			*size = strdup("16"); // default size
@@ -277,7 +275,7 @@ void asm_lexer_process_instr(ASM_LEXER *lexer, char **instr, char** size, char *
 			*argument = second_arg;
 		} else {
         	asm_lexer_report_error(
-        	    lexer, "Instruction %s require argument or size + argument, e.g. %s [ARGUMENT] or %s [SIZE] [ARGUMENT]\n", *instr, *instr, *instr);
+        	    lexer, "Instruction %s requires argument or size + argument, e.g. %s [ARGUMENT] or %s [SIZE] [ARGUMENT]\n", *instr, *instr, *instr);
 		}
 	} else {
 		// TODO: Should this be handled?

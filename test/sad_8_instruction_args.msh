@@ -1,6 +1,6 @@
-// ERR L3: Expected argument for instruction push
+// ERR L3: Instruction push requires argument or size + argument, e.g. push [ARGUMENT] or push [SIZE] [ARGUMENT]
 // ERR L5: Instruction add does not require an argument
-push 8;
+push;
 push 8, 10;
 add 8, 24;
 print 8;

@@ -1,6 +1,6 @@
-// ERR L3: Expected argument for instruction push
+// ERR L3: Instruction push requires argument or size + argument, e.g. push [ARGUMENT] or push [SIZE] [ARGUMENT]
 // ERR L5: Unknown instruction 'glurp'
-push 8;
+push;
 push 8, 4;
 glurp 8, 9;
 mul 8;
