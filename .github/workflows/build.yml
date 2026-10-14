@@ -29,5 +29,7 @@ jobs:
       run: CC=emcc make
 
   deploy-wasm:
+    needs: [ build-wasm ]
+    runs-on: ubuntu-latest
     steps:
       - run: ls
