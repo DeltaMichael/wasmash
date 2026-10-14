@@ -13,6 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - run: mkdir ./obj
     - name: setup emscripten
       uses: slowriot/setup-emsdk@v15
     - name: make
