@@ -27,6 +27,11 @@ jobs:
       uses: slowriot/setup-emsdk@v15
     - name: make
       run: CC=emcc make
+    - uses: actions/upload-artifact@v7
+      with:
+        name: wasmash
+        path: ./index.*
+        retention-days: 30
 
   deploy-wasm:
     needs: [ build-wasm ]
