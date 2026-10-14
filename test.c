@@ -122,5 +122,8 @@ int main(int argc, char **argv) {
   }
   pclose(file);
   printf("Passed %d/%d\n", success_count, total_count);
+  if (success_count != total_count) {
+    return 1;
+  }
   return 0;
 }
