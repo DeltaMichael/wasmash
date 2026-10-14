@@ -7,6 +7,15 @@ on:
     branches: [ "main" ]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - run: mkdir ./obj
+    - name: make
+      run: CC=clang make && ./testmash
+      
   build:
 
     runs-on: ubuntu-latest
