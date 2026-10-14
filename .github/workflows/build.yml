@@ -12,13 +12,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: mkdir ./obj
-    - name: make
-
-    steps:
-      - run: CC=clang make mishmash 
-      - run: make testmash
-      - run: ./testmash
-      - run: make clean
+    - run: CC=clang make mishmash 
+    - run: make testmash
+    - run: ./testmash
+    - run: make clean
       
   build:
     runs-on: ubuntu-latest
