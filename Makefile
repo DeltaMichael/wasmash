@@ -1,8 +1,9 @@
-# CC=emcc
-# CFLAGS=-std=gnu99 -sEXPORTED_FUNCTIONS=_main -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,callMain,HEAPU8 -sMODULARIZE=1 -sEXPORT_NAME=Foo -sENVIRONMENT=web -sASYNCIFY=0 -sINVOKE_RUN=0
-
-CC=clang
+ifeq ($(CC),emcc)
+CFLAGS=-std=gnu99 -sEXPORTED_FUNCTIONS=_main -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,callMain,HEAPU8 -sMODULARIZE=1 -sEXPORT_NAME=Foo -sENVIRONMENT=web -sASYNCIFY=0 -sINVOKE_RUN=0
+else
+# default is clang
 CFLAGS=-g -fsanitize=address -fsanitize=undefined -Wextra -Wall -Wundef -Wswitch-default -Wswitch-enum
+endif
 
 IDIR=include
 ODIR=obj
@@ -27,8 +28,11 @@ $(ODIR)/%.o: %.c $(DEPS)
 	$(CC) -c $< -o $@ $(CFLAGS) -I$(IDIR)
 
 mishmash: $(OBJ)
-# $(CC) $^ -o $(ARTEFACT).html --shell-file shell.html $(CFLAGS)
+ifeq ($(CC),emcc)
+	$(CC) $^ -o $(ARTEFACT).html --shell-file shell.html $(CFLAGS)
+else
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+endif
 
 testmash: $(TEST_OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)

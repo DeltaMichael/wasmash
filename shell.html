@@ -272,10 +272,14 @@
     <div class="ide-container">
       <div class="toolbar">
         <button id="runBtn">
-          Run Program
+          Run
         </button>
-        <button onclick="clearOutput()">Clear Output</button>
-        <button onclick="clearStack()">Clear Stack</button>
+        <button id="debugBtn">
+          Debug
+        </button>
+        <button id="nextBtn">
+          Next
+        </button>
       </div>
 
       <div class="main-panel">
@@ -288,28 +292,28 @@
             id="codeEditor"
             placeholder="// Enter your stack-based program here
 // Example:
-push8 0;
-push8 1;
-push8 2;
-push8 3;
-push8 4;
-push8 5;
-add8;
-add8;
-add8;
-add8;
-add8;"
-            spellcheck="false">push8 0;
-push8 1;
-push8 2;
-push8 3;
-push8 4;
-push8 5;
-add8;
-add8;
-add8;
-add8;
-add8;</textarea>
+push 8, 0;
+push 8, 1;
+push 8, 2;
+push 8, 3;
+push 8, 4;
+push 8, 5;
+add 8;
+add 8;
+add 8;
+add 8;
+add 8;"
+            spellcheck="false">push 8, 0;
+push 8, 1;
+push 8, 2;
+push 8, 3;
+push 8, 4;
+push 8, 5;
+add 8;
+add 8;
+add 8;
+add 8;
+add 8;</textarea>
         </div>
 
         <div class="run-panel">
@@ -348,6 +352,10 @@ add8;</textarea>
         document.getElementById("output").value = "";
       }
 
+      function clearStackData() {
+        stackData = []
+      }
+
       function clearStack() {
         stackData = [];
         updateStackView();
@@ -378,28 +386,6 @@ add8;</textarea>
         stackView.innerHTML = html;
       }
 
-      // Mock stack operations for demonstration
-      function simulateStackOperations(code) {
-        stackData = [];
-        const lines = code.split('\n').filter(line => line.trim());
-
-        lines.forEach(line => {
-          const trimmed = line.trim().replace(';', '');
-          if (trimmed.startsWith('push8')) {
-            const value = trimmed.split(' ')[1];
-            if (!isNaN(value)) {
-              stackData.push(parseInt(value));
-              updateStackView();
-            }
-          } else if (trimmed === 'add8' && stackData.length >= 2) {
-            const b = stackData.pop();
-            const a = stackData.pop();
-            stackData.push(a + b);
-            updateStackView();
-          }
-        });
-      }
-
       window.addEventListener('load', function() {
         Foo({
           print: (...args) => {
@@ -415,9 +401,18 @@ add8;</textarea>
           document.getElementById("runBtn").onclick = () => {
             const code = document.getElementById("codeEditor").value;
             clearOutput();
-            // simulateStackOperations(code); // For stack visualization
-            Module.callMain(["-i", code]);
+            Module.ccall('run_program', 'void', ['string'], [code]);
           };
+          document.getElementById("debugBtn").onclick = () => {
+            const code = document.getElementById("codeEditor").value;
+            clearOutput();
+            Module.ccall('load_program', 'void', ['string'], [code]);
+          };
+          document.getElementById("nextBtn").onclick = () => {
+            const code = document.getElementById("codeEditor").value;
+            Module.ccall('exec_instruction', 'void', [], []);
+          };
+
         });
       });
 

@@ -31,7 +31,7 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
   switch (instr->opcode) {
   case PUSH_8:
     if (instr->data == NULL) {
-      printf("Push instruction should have data");
+      printf("Push instruction should have data\n");
       exit(1);
     }
     push_byte(machine->stack, instr->data[0]);
@@ -65,7 +65,7 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
     break;
   case PRSP_8:
     if (instr->data == NULL) {
-      printf("Push instruction should have data");
+      printf("Push instruction should have data\n");
       exit(1);
     }
     if (machine->stack->sp + instr->data[0] > machine->stack->top) {
@@ -80,7 +80,7 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
     break;
   case PRT_8:
     if (instr->data == NULL) {
-      printf("Push instruction should have data");
+      printf("Push instruction should have data\n");
       exit(1);
     }
     if (machine->stack->top - instr->data[0] < machine->stack->sp) {
@@ -97,7 +97,7 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
     break;
   case LRSP_8:
     if (instr->data == NULL) {
-      printf("Push instruction should have data");
+      printf("Push instruction should have data\n");
       exit(1);
     }
     if (machine->stack->top < machine->stack->sp) {
@@ -111,7 +111,7 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
     break;
   case JMP_8:
     if (instr->data == NULL) {
-      printf("JMP instruction should have data");
+      printf("JMP instruction should have data\n");
       exit(1);
     }
     uint32_t position =
@@ -121,7 +121,7 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
   case JZ_8:
     if (machine->cmp_result == 0) {
       if (instr->data == NULL) {
-        printf("JMP instruction should have data");
+        printf("JMP instruction should have data\n");
         exit(1);
       }
       uint32_t position =
@@ -132,7 +132,7 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
   case JNZ_8:
     if (machine->cmp_result == 1) {
       if (instr->data == NULL) {
-        printf("JNZ_8 instruction should have data");
+        printf("JNZ_8 instruction should have data\n");
         exit(1);
       }
       uint32_t position =
@@ -174,13 +174,13 @@ uint8_t machine_exec_next_instruction(MACHINE *machine) {
   case ENTER_8: {
     int64_t old_top = machine->stack->sp - 3;
     if (instr->data == NULL) {
-      printf("ENTER_8 instruction should have data");
+      printf("ENTER_8 instruction should have data\n");
       exit(1);
     }
     int64_t start = old_top - instr->data[0];
     int64_t end = start + instr->data[0];
     if (start < 0) {
-      printf("Trying to address stack data at pointer %d < 0", start);
+      printf("Trying to address stack data at pointer %d < 0\n", start);
       exit(1);
     }
     for (int i = start; i < end; i++) {
