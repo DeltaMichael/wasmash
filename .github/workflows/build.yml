@@ -14,6 +14,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: setup emscripten
-      uses: emscripten-core/setup-emsdk@v15
+      uses: slowriot/setup-emsdk@v15
     - name: make
       run: CC=emcc make
