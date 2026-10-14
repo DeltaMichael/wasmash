@@ -18,8 +18,8 @@ jobs:
     - run: make clean
       
   build-wasm:
+    needs: [ build-test ]
     runs-on: ubuntu-latest
-    needs: build-test
     steps:
     - uses: actions/checkout@v4
     - run: mkdir ./obj
