@@ -79,7 +79,6 @@ char *read_file(char *path) {
 }
 
 int main(int argc, char **argv) {
-  optreset = 1;
   int ch;
   int ffile, finline, fdebug = 0;
   char* file_path = NULL;
