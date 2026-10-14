@@ -2,7 +2,7 @@ ifeq ($(CC),emcc)
 CFLAGS=-std=gnu99 -sEXPORTED_FUNCTIONS=_main -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,callMain,HEAPU8 -sMODULARIZE=1 -sEXPORT_NAME=Foo -sENVIRONMENT=web -sASYNCIFY=0 -sINVOKE_RUN=0
 else
 # default is clang
-CFLAGS=-Wextra -Wall -Wundef -Wswitch-default -Wswitch-enum # -g -fsanitize=address -fsanitize=undefined
+CFLAGS=-lm -Wextra -Wall -Wundef -Wswitch-default -Wswitch-enum # -g -fsanitize=address -fsanitize=undefined
 endif
 
 IDIR=include
