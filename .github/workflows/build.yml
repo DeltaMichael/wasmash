@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test:
+  build-test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -17,7 +17,8 @@ jobs:
     - run: ./testmash
     - run: make clean
       
-  build:
+  build-wasm:
+    needs: build-test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -26,3 +27,7 @@ jobs:
       uses: slowriot/setup-emsdk@v15
     - name: make
       run: CC=emcc make
+
+  deploy-wasm:
+    steps:
+      - run: ls
